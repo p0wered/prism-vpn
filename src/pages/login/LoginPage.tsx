@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router'
+import { Button } from '../../components/Button'
 
 // Мок-авторизация: любые креды пускают в dashboard (этап 4)
 export function LoginPage() {
@@ -13,7 +14,7 @@ export function LoginPage() {
           navigate('/dashboard')
         }}
       >
-        <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
+        <h1 className="pl-2 text-2xl font-semibold tracking-tight">Sign in</h1>
         <input
           type="email"
           placeholder="Email"
@@ -24,12 +25,9 @@ export function LoginPage() {
           placeholder="Password"
           className="rounded-xl bg-surface-1 px-4 py-3 text-fg placeholder:text-fg-muted focus:outline-2 focus:outline-accent"
         />
-        <button
-          type="submit"
-          className="rounded-xl bg-accent px-4 py-3 font-medium text-black transition-opacity hover:opacity-90"
-        >
+        <Button type="submit" className="mt-2">
           Continue
-        </button>
+        </Button>
       </form>
     </main>
   )

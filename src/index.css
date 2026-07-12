@@ -16,7 +16,7 @@
   --color-surface-2: #111114;
   --color-fg: #f5f5f7;
   --color-fg-muted: #a1a1a6;
-  --color-accent: #5ea2ff;
+  --color-accent: #426eff;
 
   --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Geist Mono Variable', ui-monospace, 'SF Mono', monospace;
@@ -38,5 +38,122 @@
 
   ::selection {
     background-color: --alpha(var(--color-accent) / 30%);
+  }
+}
+
+@layer components {
+  /*
+   * GlassCard (см. PROJECT.md → «GlassCard»).
+   * ::before — рамка: градиент «свет сверху» + spotlight-усиление у курсора.
+   *   Рисуется как заливка толщиной 1px через mask-composite (border-image
+   *   не умеет border-radius).
+   * ::after — spotlight-подсветка фона, следует за курсором.
+   * --spot-x/y и --spot-opacity ставит GlassCard.tsx.
+   */
+  .glass-card {
+    position: relative;
+    border-radius: var(--radius-card);
+    background-color: var(--color-surface-1);
+    --spot-x: 50%;
+    --spot-y: 50%;
+    --spot-opacity: 0;
+  }
+
+  .glass-card::before,
+  .glass-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  .glass-card::before {
+    padding: 1px;
+    background:
+      radial-gradient(
+        200px circle at var(--spot-x) var(--spot-y),
+        rgb(255 255 255 / calc(0.45 * var(--spot-opacity))),
+        transparent 70%
+      ),
+      linear-gradient(
+        to bottom,
+        rgb(255 255 255 / 0.14),
+        rgb(255 255 255 / 0.08) 40%,
+        rgb(255 255 255 / 0.05)
+      );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+  }
+
+  .glass-card::after {
+    background: radial-gradient(
+      360px circle at var(--spot-x) var(--spot-y),
+      rgb(255 255 255 / 0.05),
+      transparent 70%
+    );
+    opacity: var(--spot-opacity);
+    transition: opacity 0.4s ease;
+  }
+
+  /*
+   * Внешний ореол GlassCard (проп halo, по мотивам React Bits BorderGlow):
+   * многослойный box-shadow, обрезанный conic-маской по углу курсора
+   * (--halo-angle) относительно центра. --halo-opacity растёт у краёв.
+   * Цвет холодно-белый, калибруется через --halo-color (компоненты hsl).
+   */
+  .glass-card {
+    --halo-angle: 45deg;
+    --halo-opacity: 0;
+    --halo-radius: 40px;
+    --halo-color: 224 70% 88%;
+  }
+
+  .glass-card-halo {
+    position: absolute;
+    inset: calc(-1 * var(--halo-radius));
+    border-radius: inherit;
+    pointer-events: none;
+    mix-blend-mode: plus-lighter;
+    opacity: var(--halo-opacity);
+    -webkit-mask-image: conic-gradient(
+      from var(--halo-angle) at center,
+      #fff 2.5%,
+      transparent 10%,
+      transparent 90%,
+      #fff 97.5%
+    );
+    mask-image: conic-gradient(
+      from var(--halo-angle) at center,
+      #fff 2.5%,
+      transparent 10%,
+      transparent 90%,
+      #fff 97.5%
+    );
+    transition: opacity 0.3s ease-out;
+  }
+
+  .glass-card-halo > span {
+    position: absolute;
+    inset: var(--halo-radius);
+    border-radius: var(--radius-card);
+    box-shadow:
+      inset 0 0 1px 0 hsl(var(--halo-color) / 50%),
+      inset 0 0 3px 0 hsl(var(--halo-color) / 40%),
+      inset 0 0 6px 0 hsl(var(--halo-color) / 30%),
+      inset 0 0 15px 0 hsl(var(--halo-color) / 20%),
+      inset 0 0 25px 2px hsl(var(--halo-color) / 12%),
+      inset 0 0 50px 2px hsl(var(--halo-color) / 6%),
+      0 0 3px 0 hsl(var(--halo-color) / 35%),
+      0 0 6px 0 hsl(var(--halo-color) / 30%),
+      0 0 15px 0 hsl(var(--halo-color) / 22%),
+      0 0 25px 2px hsl(var(--halo-color) / 15%),
+      0 0 50px 2px hsl(var(--halo-color) / 8%);
   }
 }
