@@ -3,6 +3,8 @@ import { LandingPage } from '../pages/landing/LandingPage'
 import { LoginPage } from '../pages/login/LoginPage'
 import { DashboardLayout } from '../pages/dashboard/DashboardLayout'
 import { OverviewPage } from '../pages/dashboard/OverviewPage'
+import { DevicesPage } from '../pages/dashboard/DevicesPage'
+import { SetupPage } from '../pages/dashboard/SetupPage'
 import { SubscriptionPage } from '../pages/dashboard/SubscriptionPage'
 import { ServersPage } from '../pages/dashboard/ServersPage'
 import { SettingsPage } from '../pages/dashboard/SettingsPage'
@@ -15,6 +17,8 @@ export const router = createBrowserRouter([
     element: <DashboardLayout />,
     children: [
       { index: true, element: <OverviewPage /> },
+      { path: 'devices', element: <DevicesPage /> },
+      { path: 'setup', element: <SetupPage /> },
       { path: 'subscription', element: <SubscriptionPage /> },
       { path: 'servers', element: <ServersPage /> },
       { path: 'settings', element: <SettingsPage /> },
