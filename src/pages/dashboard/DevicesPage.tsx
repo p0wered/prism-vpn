@@ -69,7 +69,7 @@ function DeviceRow({
                 setEditing(false)
               }
             }}
-            className="w-full max-w-52 rounded-lg bg-surface-2 px-2.5 py-1 text-sm focus:outline-2 focus:outline-white/30"
+            className="w-full max-w-52 text-sm focus:outline-none"
           />
         ) : (
           <span className="flex items-center gap-2 text-sm">

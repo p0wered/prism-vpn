@@ -90,10 +90,19 @@ export function Hero() {
             variants={item}
             className="mt-6 flex flex-wrap items-center justify-center gap-3"
           >
-            <Button size="lg" onClick={() => navigate('/login')}>
+            <Button
+              size="lg"
+              className="rounded-full min-w-40"
+              onClick={() => navigate('/login')}
+            >
               Get PrismVPN
             </Button>
-            <Button size="lg" variant="secondary" onClick={() => scrollToSection('pricing')}>
+            <Button
+              size="lg"
+              variant="secondary"
+              className="rounded-full min-w-40"
+              onClick={() => scrollToSection('pricing')}
+            >
               View pricing
             </Button>
           </motion.div>

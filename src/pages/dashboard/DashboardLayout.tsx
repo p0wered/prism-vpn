@@ -28,26 +28,55 @@ const navItems = [
   { to: '/dashboard/settings', label: 'Settings', icon: Settings },
 ]
 
-function NavItems({ collapsed, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
+
+/** Ширина сайдбара: развёрнутый / схлопнутый до колонки иконок (16 + 44 + 16). */
+const SIDEBAR_W = { expanded: 240, collapsed: 76 }
+
+/** Всё, что меняет геометрию оболочки, едет одним таймингом — иначе части разъезжаются. */
+const shellTransition = (reduced: boolean | null) =>
+  reduced ? { duration: 0 } : { duration: 0.34, ease: EASE }
+
+/**
+ * Подписи гаснут быстро при схлопывании и проявляются с задержкой при раскрытии —
+ * чтобы текст не «резался» краем сайдбара на полпути.
+ */
+const labelTransition = (reduced: boolean | null, collapsed: boolean) =>
+  reduced ? { duration: 0 } : collapsed ? { duration: 0.12 } : { duration: 0.22, delay: 0.16 }
+
+function NavItems({ collapsed = false, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
+  const reduced = useReducedMotion()
+
   return (
     <ul className="flex flex-col gap-1">
       {navItems.map(({ to, label, icon: Icon, end }) => (
         <li key={to}>
+          {/*
+            px-3 держится в обоих состояниях: иконка стоит на одном и том же месте,
+            а пилюля просто сжимается вместе с сайдбаром и подрезает подпись.
+          */}
           <NavLink
             to={to}
             end={end}
             title={collapsed ? label : undefined}
             onClick={onNavigate}
             className={({ isActive }) =>
-              `flex h-11 items-center gap-3 rounded-xl px-3 text-sm transition-colors ${
+              `flex h-11 items-center gap-3 overflow-hidden rounded-xl px-3 text-sm transition-colors ${
                 isActive
                   ? 'bg-surface-2 text-fg'
                   : 'text-fg-muted hover:bg-surface-1 hover:text-fg'
-              } ${collapsed ? 'justify-center px-0' : ''}`
+              }`
             }
           >
             <Icon size={18} strokeWidth={1.75} className="shrink-0" aria-hidden />
-            {!collapsed && <span>{label}</span>}
+            <motion.span
+              initial={false}
+              animate={{ opacity: collapsed ? 0 : 1 }}
+              transition={labelTransition(reduced, collapsed)}
+              className="whitespace-nowrap"
+            >
+              {label}
+            </motion.span>
           </NavLink>
         </li>
       ))}
@@ -55,37 +84,61 @@ function NavItems({ collapsed, onNavigate }: { collapsed?: boolean; onNavigate?:
   )
 }
 
-function UserChip({ collapsed }: { collapsed?: boolean }) {
+function UserChip({ collapsed = false }: { collapsed?: boolean }) {
   const { nickname, email } = useDashboard()
   const navigate = useNavigate()
+  const reduced = useReducedMotion()
+  const transition = shellTransition(reduced)
 
   return (
-    <div className={`flex items-center gap-3 ${collapsed ? 'flex-col' : ''}`}>
-      <span
-        aria-hidden
-        className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-2 text-sm font-medium uppercase"
-      >
-        {nickname[0]}
-      </span>
-      {!collapsed && (
-        <span className="min-w-0 flex-1 leading-tight">
+    <motion.div
+      initial={false}
+      animate={{ height: collapsed ? 84 : 36 }}
+      transition={transition}
+      className="relative overflow-hidden"
+    >
+      {/*
+        Ряд «аватар + имя» держит фиксированную ширину развёрнутого сайдбара,
+        поэтому при схлопывании он не переверстывается — его просто подрезает край.
+      */}
+      <div className="absolute top-0 left-0 flex h-9 w-full items-center gap-3 lg:w-52">
+        <motion.span
+          aria-hidden
+          initial={false}
+          animate={{ marginLeft: collapsed ? 3 : 0 }}
+          transition={transition}
+          className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-2 text-sm font-medium uppercase"
+        >
+          {nickname[0]}
+        </motion.span>
+        <motion.span
+          initial={false}
+          animate={{ opacity: collapsed ? 0 : 1 }}
+          transition={labelTransition(reduced, collapsed)}
+          className="min-w-0 flex-1 leading-tight"
+        >
           <span className="block truncate text-sm">{nickname}</span>
           <span className="block truncate text-xs text-fg-muted">{email}</span>
-        </span>
-      )}
-      <button
+        </motion.span>
+        <span aria-hidden className="size-9 shrink-0" />
+      </div>
+      {/* Выход: справа от чипа в развёрнутом виде, под аватаром — в колонке иконок. */}
+      <motion.button
         type="button"
         title="Log out"
         onClick={() => {
           signOut()
           navigate('/')
         }}
-        className="cursor-pointer rounded-lg p-2 text-fg-muted transition-colors hover:text-fg"
+        initial={false}
+        animate={{ right: collapsed ? 4 : 0, top: collapsed ? 48 : 0 }}
+        transition={transition}
+        className="absolute flex size-9 cursor-pointer items-center justify-center rounded-lg text-fg-muted transition-colors hover:text-fg"
       >
         <LogOut size={16} strokeWidth={1.75} aria-hidden />
         <span className="sr-only">Log out</span>
-      </button>
-    </div>
+      </motion.button>
+    </motion.div>
   )
 }
 
@@ -97,32 +150,57 @@ function DashboardShell() {
   return (
     <div className="flex min-h-screen">
       {/* Sidebar — десктоп */}
-      <aside
-        className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r border-white/6 px-4 py-6 transition-[width] duration-300 lg:flex ${
-          collapsed ? 'w-[76px]' : 'w-60'
-        }`}
+      <motion.aside
+        initial={false}
+        animate={{ width: collapsed ? SIDEBAR_W.collapsed : SIDEBAR_W.expanded }}
+        transition={shellTransition(reduced)}
+        className="sticky top-0 hidden h-screen shrink-0 flex-col overflow-hidden border-r border-white/6 px-4 py-6 lg:flex"
       >
-        <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between pl-3'}`}>
-          {!collapsed && <Wordmark />}
-          <button
+        <div className="relative h-9 shrink-0">
+          <motion.div
+            initial={false}
+            animate={{ opacity: collapsed ? 0 : 1 }}
+            transition={labelTransition(reduced, collapsed)}
+            className="absolute top-0 left-3 flex h-9 w-max items-center"
+          >
+            <Wordmark />
+          </motion.div>
+          <motion.button
             type="button"
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             onClick={() => setCollapsed((v) => !v)}
-            className="cursor-pointer rounded-lg p-2 text-fg-muted transition-colors hover:text-fg"
+            initial={false}
+            animate={{ right: collapsed ? 4 : 0 }}
+            transition={shellTransition(reduced)}
+            className="absolute top-0 flex size-9 cursor-pointer items-center justify-center rounded-lg text-fg-muted transition-colors hover:text-fg"
           >
-            {collapsed ? (
-              <PanelLeftOpen size={18} strokeWidth={1.75} aria-hidden />
-            ) : (
-              <PanelLeftClose size={18} strokeWidth={1.75} aria-hidden />
-            )}
+            {/* Иконки лежат стопкой и перекрещиваются — иначе подмена читается как рывок. */}
+            <span className="relative block size-[18px]">
+              <motion.span
+                initial={false}
+                animate={{ opacity: collapsed ? 0 : 1 }}
+                transition={{ duration: reduced ? 0 : 0.18 }}
+                className="absolute inset-0"
+              >
+                <PanelLeftClose size={18} strokeWidth={1.75} aria-hidden />
+              </motion.span>
+              <motion.span
+                initial={false}
+                animate={{ opacity: collapsed ? 1 : 0 }}
+                transition={{ duration: reduced ? 0 : 0.18 }}
+                className="absolute inset-0"
+              >
+                <PanelLeftOpen size={18} strokeWidth={1.75} aria-hidden />
+              </motion.span>
+            </span>
             <span className="sr-only">{collapsed ? 'Expand sidebar' : 'Collapse sidebar'}</span>
-          </button>
+          </motion.button>
         </div>
         <nav className="mt-8 flex-1">
           <NavItems collapsed={collapsed} />
         </nav>
         <UserChip collapsed={collapsed} />
-      </aside>
+      </motion.aside>
 
       {/* Топ-бар — мобила */}
       <div className="fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between border-b border-white/6 bg-bg/80 px-4 backdrop-blur-xl lg:hidden">
@@ -146,15 +224,15 @@ function DashboardShell() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={shellTransition(reduced)}
             onClick={() => setDrawerOpen(false)}
           >
             <motion.aside
               className="flex h-full w-72 flex-col border-r border-white/6 bg-bg px-4 py-6"
-              initial={reduced ? {} : { x: '-100%' }}
-              animate={{ x: 0 }}
+              initial={reduced ? { opacity: 0 } : { x: '-100%' }}
+              animate={reduced ? { opacity: 1 } : { x: 0 }}
               exit={reduced ? { opacity: 0 } : { x: '-100%' }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              transition={shellTransition(reduced)}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between pl-3">

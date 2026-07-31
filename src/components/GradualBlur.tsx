@@ -3,52 +3,79 @@ import type { CSSProperties } from 'react'
 /**
  * Прогрессивный блюр у кромки (по мотивам React Bits GradualBlur).
  * От исходника взято ядро приёма: стопка слоёв, у каждого свой
- * backdrop-filter и узкая градиентная маска с перекрытием соседей.
- * На чистом чёрном фоне слой невидим — «стекло» проявляется, только
- * когда под него заезжает контент.
+ * backdrop-filter и градиентная маска. На чистом чёрном фоне слой
+ * невидим — «стекло» проявляется, только когда под него заезжает контент.
  *
- * Формула силы переделана: у исходника блюр рос линейно крупными шагами —
- * между слоями читались полосы, а на краю зоны был скачок «резко → ~5px».
- * Здесь геометрическая прогрессия: каждый слой вдвое сильнее предыдущего,
- * самый слабый — доли пикселя. Соседние слои отличаются ≤2× (стыки не
- * видны), а кромка зоны растворяется в ноль без границы.
+ * Всё остальное переделано — у исходника (и у промежуточной версии
+ * с геометрической прогрессией ×2) были видны стыки слоёв:
+ *
+ * 1. Маска слоя — не полоса, а ступень: слой включается на своём участке
+ *    и держится до самой кромки. У полосы есть «конец», на котором блюр
+ *    проседает до подхвата следующей, — это и читалось линиями. Ступени
+ *    же складываются монотонно: backdrop-filter каждого слоя видит уже
+ *    размытый результат предыдущих.
+ * 2. Разгон альфы — smoothstep, а не линейный: у линейной рампы на каждом
+ *    стопе излом производной, глаз ловит его как границу.
+ * 3. Сила слоёв считается из целевого профиля σ(t) = maxBlur·t², а не
+ *    удвоением. При удвоении вся видимая часть перехода ужималась
+ *    в верхнюю четверть зоны, и кромка зоны читалась как граница;
+ *    квадратичный профиль растягивает переход на всю высоту и стартует
+ *    с нулевой производной — вход в блюр незаметен.
  *
  * Каждый слой — backdrop-filter, который браузер пересчитывает каждый кадр
  * поверх анимированного WebGL-фона, поэтому divCount держим малым.
  */
 
+/** Промежуточных стопов в smoothstep-разгоне маски одного слоя */
+const RAMP_STOPS = 5
+
+/**
+ * Маска слоя: альфа по smoothstep разгоняется от 0 на `start`% до 1 на `end`%
+ * и дальше держится до кромки (100%).
+ */
+function stepMask(direction: string, start: number, end: number) {
+  const stops: string[] = []
+  if (start > 0) stops.push('rgba(0,0,0,0) 0%')
+  for (let s = 0; s <= RAMP_STOPS; s++) {
+    const t = s / RAMP_STOPS
+    const alpha = t * t * (3 - 2 * t)
+    const pos = start + (end - start) * t
+    stops.push(`rgba(0,0,0,${alpha.toFixed(3)}) ${pos.toFixed(2)}%`)
+  }
+  if (end < 100) stops.push('rgb(0,0,0) 100%')
+  return `linear-gradient(${direction}, ${stops.join(', ')})`
+}
+
 export function GradualBlur({
   position = 'top',
   height = '7rem',
-  maxBlur = 0.75,
-  divCount = 6,
+  maxBlur = 1.75,
+  divCount = 8,
   className = '',
 }: {
   position?: 'top' | 'bottom'
   height?: string
-  /** Сила блюра у самой кромки, rem */
+  /** Суммарная сила блюра у самой кромки, rem */
   maxBlur?: number
   divCount?: number
   className?: string
 }) {
-  const increment = 100 / divCount
   const direction = position === 'top' ? 'to top' : 'to bottom'
+
+  // Целевой профиль силы: σ(t) = maxBlur·t², где t — доля пути до кромки
+  const sigma = (n: number) => maxBlur * (n / divCount) ** 2
 
   const layers: CSSProperties[] = []
   for (let i = 1; i <= divCount; i++) {
-    const blur = maxBlur * 2 ** (i - divCount)
+    // Блюры складываются квадратично (σ² = Σσᵢ²), поэтому слою достаётся
+    // ровно то, чего не хватает до профиля
+    const blur = Math.sqrt(sigma(i) ** 2 - sigma(i - 1) ** 2)
 
-    // Маска слоя — полоса на своём участке с растушёванными краями;
-    // соседние полосы перекрываются, чтобы ступени блюра сливались
-    const p1 = Math.round((increment * i - increment) * 10) / 10
-    const p2 = Math.round(increment * i * 10) / 10
-    const p3 = Math.round((increment * i + increment) * 10) / 10
-    const p4 = Math.round((increment * i + increment * 2) * 10) / 10
-    let gradient = `transparent ${p1}%, black ${p2}%`
-    if (p3 <= 100) gradient += `, black ${p3}%`
-    if (p4 <= 100) gradient += `, transparent ${p4}%`
+    // Рампы соседних слоёв перекрываются вдвое — ступени сливаются в градиент
+    const start = ((i - 1) / divCount) * 100
+    const end = Math.min(((i + 1) / divCount) * 100, 100)
 
-    const mask = `linear-gradient(${direction}, ${gradient})`
+    const mask = stepMask(direction, start, end)
     layers.push({
       maskImage: mask,
       WebkitMaskImage: mask,

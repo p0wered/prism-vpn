@@ -12,7 +12,7 @@ const base =
 
 const variants = {
   primary:
-    'bg-fg text-black shadow-[0_0_20px] shadow-ice/20 hover:bg-white hover:shadow-[0_0_36px] hover:shadow-ice/55',
+    'bg-fg text-black shadow-[0_0_20px] shadow-ice/20 hover:bg-white hover:shadow-[0_10px_36px] hover:shadow-ice/55',
   secondary: 'border border-white/10 bg-white/8 text-fg hover:border-white/14 hover:bg-white/14',
   ghost: 'text-fg-muted hover:text-fg',
 }

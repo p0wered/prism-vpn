@@ -9,7 +9,7 @@ export function Wordmark({ className = '', onClick }: { className?: string; onCl
   return (
     <Link to="/" onClick={onClick} className={`flex items-center gap-2.5 text-fg ${className}`}>
       <Pyramid size={20} strokeWidth={1.75} aria-hidden />
-      <span className="text-[15px] font-semibold tracking-tight">
+      <span className="text-[17px] font-semibold tracking-tight">
         Prism<span className="text-fg-muted">VPN</span>
       </span>
     </Link>

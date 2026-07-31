@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { Link, useNavigate } from 'react-router'
-import { Menu, X } from 'lucide-react'
+import {LogIn, Menu, X} from 'lucide-react'
 import { Button } from '../../components/Button'
 import { GradualBlur } from '../../components/GradualBlur'
 import { Wordmark } from '../../components/Wordmark'
@@ -85,7 +85,8 @@ export function Header() {
                   e.preventDefault()
                   goTo(l.id)
                 }}
-                className="rounded-full px-3.5 py-2 text-sm text-fg-muted transition-colors hover:text-fg"
+                className="rounded-full hover:bg-white/10 px-3.5 py-2 text-sm
+                hover:backdrop-blur-sm text-fg-muted transition-all hover:text-fg"
               >
                 {l.label}
               </a>
@@ -99,7 +100,13 @@ export function Header() {
               {session ? (
                 <ProfilePill nickname={session.nickname} />
               ) : (
-                <Button size="sm" variant="secondary" onClick={() => navigate('/login')}>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="bg-white/5! backdrop-blur-md rounded-full flex gap-1.5"
+                  onClick={() => navigate('/login')}
+                >
+                  <LogIn size={14}/>
                   Log in
                 </Button>
               )}
