@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react'
 import { Gamepad2, Search } from 'lucide-react'
+import { Flag } from '../../components/Flag'
 import { GlassCard } from '../../components/GlassCard'
+import { PillTabs } from '../../components/PillTabs'
 import { Reveal } from '../../components/Reveal'
 import { servers } from '../../data/mock'
 import { PageHeader } from './PageHeader'
 
-const glow = '[text-shadow:0_0_24px_rgb(255_255_255/0.3)]'
+const glow = 'glow-num'
 
 type Filter = 'all' | 'standard' | 'gaming'
 
@@ -38,22 +40,7 @@ export function ServersPage() {
 
       <Reveal delay={0.05}>
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex rounded-full bg-surface-2 p-1" role="tablist" aria-label="Server type">
-            {filters.map((f) => (
-              <button
-                key={f.id}
-                type="button"
-                role="tab"
-                aria-selected={filter === f.id}
-                onClick={() => setFilter(f.id)}
-                className={`cursor-pointer rounded-full px-4 py-1.5 text-sm transition-colors ${
-                  filter === f.id ? 'bg-white/12 text-fg' : 'text-fg-muted hover:text-fg'
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
+          <PillTabs value={filter} onChange={setFilter} options={filters} ariaLabel="Server type" />
           <label className="relative flex-1 sm:max-w-64">
             <Search
               size={15}
@@ -81,9 +68,7 @@ export function ServersPage() {
                   key={s.id}
                   className="flex items-center gap-4 border-b border-white/5 px-5 py-3.5 last:border-none lg:px-6"
                 >
-                  <span className="text-lg" aria-hidden>
-                    {s.flag}
-                  </span>
+                  <Flag code={s.code} size={22} />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-2 text-sm">
                       <span className="truncate">{s.city}</span>

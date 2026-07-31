@@ -1,9 +1,14 @@
+import { Header } from './Header'
 import { Hero } from './Hero'
 
 export function LandingPage() {
   return (
-    <main>
-      <Hero/>
-    </main>
+    <>
+      <Header />
+      <main>
+        <Hero />
+        <div style={{ height: '100vh' }}/>
+      </main>
+    </>
   )
 }

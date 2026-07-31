@@ -47,7 +47,7 @@ function DeviceRow({
   }
 
   return (
-    <li className="flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-white/5 px-5 py-4 last:border-none lg:px-6">
+    <li className="flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-white/5 p-4 last:border-none">
       <span
         aria-hidden
         className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-surface-2"
@@ -137,7 +137,7 @@ export function DevicesPage() {
             sub="Everything connected with your subscription link, identified by device ID."
           />
           {/* Индикатор лимита тарифа: занятые слоты — мостик к Subscription */}
-          <div className="pr-2 pl-2">
+          <div className="pr-2">
             <span className="font-mono text-sm">
               {devices.length}
               <span className="text-fg-muted"> of {plan.deviceLimit} devices</span>

@@ -1,13 +1,12 @@
 import { useState, type FormEvent } from 'react'
 import { Button } from '../../components/Button'
+import { Input } from '../../components/Input'
 import { GlassCard } from '../../components/GlassCard'
+import { PillTabs } from '../../components/PillTabs'
 import { Reveal } from '../../components/Reveal'
 import { useToast } from '../../components/Toast'
 import { useDashboard } from './DashboardContext'
 import { PageHeader } from './PageHeader'
-
-const inputCls =
-  'w-full rounded-xl bg-surface-2 px-4 py-2.5 text-sm text-fg placeholder:text-fg-muted focus:outline-2 focus:outline-white/25'
 
 export function SettingsPage() {
   const { nickname, email, setNickname } = useDashboard()
@@ -41,21 +40,15 @@ export function SettingsPage() {
 
       <Reveal delay={0.05}>
         <GlassCard className="p-6 lg:p-7">
-          <form onSubmit={saveProfile} className="flex flex-col gap-4 pl-2">
+          <form onSubmit={saveProfile} className="flex flex-col gap-4">
             <h2 className="text-sm font-medium">Profile</h2>
-            <label className="flex flex-col gap-1.5 text-xs text-fg-muted">
-              Nickname — shown across the dashboard
-              <input
-                value={nameDraft}
-                onChange={(e) => setNameDraft(e.target.value)}
-                className={inputCls}
-                maxLength={24}
-              />
-            </label>
-            <label className="flex flex-col gap-1.5 text-xs text-fg-muted">
-              Email
-              <input value={email} disabled className={`${inputCls} opacity-50`} />
-            </label>
+            <Input
+              label="Nickname"
+              value={nameDraft}
+              onChange={(e) => setNameDraft(e.target.value)}
+              maxLength={24}
+            />
+            <Input label="Email" value={email} disabled />
             <div>
               <Button type="submit" variant="secondary" disabled={nameDraft.trim() === nickname}>
                 Save
@@ -67,63 +60,51 @@ export function SettingsPage() {
 
       <Reveal delay={0.1}>
         <GlassCard className="p-6 lg:p-7">
-          <div className="flex flex-wrap items-center justify-between gap-4 pl-2">
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <h2 className="text-sm font-medium">Language</h2>
               <p className="mt-1 text-xs text-fg-muted">
                 Interface language. Russian arrives together with i18n.
               </p>
             </div>
-            <div className="flex rounded-full bg-surface-2 p-1" role="tablist" aria-label="Language">
-              {(['en', 'ru'] as const).map((lang) => (
-                <button
-                  key={lang}
-                  type="button"
-                  role="tab"
-                  aria-selected={language === lang}
-                  onClick={() => {
-                    setLanguage(lang)
-                    if (lang === 'ru') toast('Русский появится вместе с i18n')
-                  }}
-                  className={`cursor-pointer rounded-full px-4 py-1.5 font-mono text-xs uppercase transition-colors ${
-                    language === lang ? 'bg-white/12 text-fg' : 'text-fg-muted hover:text-fg'
-                  }`}
-                >
-                  {lang}
-                </button>
-              ))}
-            </div>
+            <PillTabs
+              value={language}
+              onChange={(lang) => {
+                setLanguage(lang)
+                if (lang === 'ru') toast('Русский появится вместе с i18n')
+              }}
+              options={[
+                { id: 'en', label: 'en' },
+                { id: 'ru', label: 'ru' },
+              ]}
+              ariaLabel="Language"
+              tabClassName="px-4 py-1.5 font-mono text-xs uppercase"
+            />
           </div>
         </GlassCard>
       </Reveal>
 
       <Reveal delay={0.15}>
         <GlassCard className="p-6 lg:p-7">
-          <form onSubmit={savePassword} className="flex flex-col gap-4 pl-2">
+          <form onSubmit={savePassword} className="flex flex-col gap-4">
             <h2 className="text-sm font-medium">Change password</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <label className="flex flex-col gap-1.5 text-xs text-fg-muted">
-                Current password
-                <input
-                  type="password"
-                  value={currentPw}
-                  onChange={(e) => setCurrentPw(e.target.value)}
-                  className={inputCls}
-                  autoComplete="current-password"
-                />
-              </label>
-              <label className="flex flex-col gap-1.5 text-xs text-fg-muted">
-                New password
-                <input
-                  type="password"
-                  value={newPw}
-                  onChange={(e) => setNewPw(e.target.value)}
-                  className={inputCls}
-                  autoComplete="new-password"
-                />
-              </label>
+              <Input
+                label="Current password"
+                type="password"
+                value={currentPw}
+                onChange={(e) => setCurrentPw(e.target.value)}
+                autoComplete="current-password"
+              />
+              <Input
+                label="New password"
+                type="password"
+                value={newPw}
+                onChange={(e) => setNewPw(e.target.value)}
+                autoComplete="new-password"
+              />
             </div>
-            <div>
+            <div className="mt-4">
               <Button type="submit" variant="secondary" disabled={!currentPw || !newPw}>
                 Update password
               </Button>

@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { Button } from '../../components/Button'
+import { Input } from '../../components/Input'
 import { GlassCard } from '../../components/GlassCard'
 import { GrainOverlay } from '../../components/GrainOverlay'
 
@@ -14,7 +15,8 @@ const colors = [
   { name: 'surface-2', className: 'bg-surface-2' },
   { name: 'fg', className: 'bg-fg' },
   { name: 'fg-muted', className: 'bg-fg-muted' },
-  { name: 'accent', className: 'bg-accent' },
+  { name: 'ice', className: 'bg-ice' },
+  { name: 'beam', className: 'bg-beam' },
 ]
 
 export function DevPage() {
@@ -25,15 +27,15 @@ export function DevPage() {
         <p className="mt-2 text-fg-muted">Токены и компоненты PrismVPN. Только для разработки.</p>
         <Link
           to="/dev/backgrounds"
-          className="mt-3 inline-block text-sm text-accent transition-opacity hover:opacity-80"
+          className="mt-3 inline-block text-sm text-ice transition-opacity hover:opacity-80"
         >
           Hero backgrounds — сравнение кандидатов →
         </Link>
       </header>
 
       <section className="flex flex-col gap-4">
-        <h2 className="pl-2 text-xl font-medium">GlassCard — материал</h2>
-        <p className="pl-2 text-sm text-fg-muted">
+        <h2 className="text-xl font-medium">GlassCard — материал</h2>
+        <p className="text-sm text-fg-muted">
           Градиентный бордер «свет сверху» + spotlight за курсором (фон и рамка).
         </p>
         <div className="grid gap-4 sm:grid-cols-3">
@@ -87,7 +89,7 @@ export function DevPage() {
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="pl-2 text-xl font-medium">Buttons</h2>
+        <h2 className="text-xl font-medium">Buttons</h2>
         <div className="flex flex-wrap items-center gap-4">
           <Button size="lg">Get PrismVPN</Button>
           <Button>Get PrismVPN</Button>
@@ -98,18 +100,28 @@ export function DevPage() {
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="pl-2 text-xl font-medium">Grain — hero-фрагмент</h2>
-        <div className="relative flex h-64 flex-col items-center justify-center overflow-hidden rounded-card-lg">
-          {/* имитация свечения будущего hero-фона */}
-          <div className="absolute inset-0 bg-[radial-gradient(600px_circle_at_50%_120%,--alpha(var(--color-accent)/25%),transparent_70%)]" />
-          <GrainOverlay opacity={0.05} />
-          <h3 className="text-4xl font-semibold tracking-tight">Beyond borders.</h3>
-          <p className="mt-2 text-fg-muted">Grain 0.05 + акцентное свечение снизу</p>
+        <h2 className="text-xl font-medium">Inputs — floating label</h2>
+        <div className="grid max-w-xl grid-cols-1 gap-4 sm:grid-cols-2">
+          <Input label="Email" type="email" />
+          <Input label="Nickname" defaultValue="neon-fox" />
+          <Input label="Password" type="password" />
+          <Input label="Email" defaultValue="powered.ui@gmail.com" disabled />
         </div>
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="pl-2 text-xl font-medium">Colors</h2>
+        <h2 className="text-xl font-medium">Grain — hero-фрагмент</h2>
+        <div className="relative flex h-64 flex-col items-center justify-center overflow-hidden rounded-card-lg">
+          {/* имитация свечения будущего hero-фона */}
+          <div className="absolute inset-0 bg-[radial-gradient(600px_circle_at_50%_120%,--alpha(var(--color-beam)/25%),transparent_70%)]" />
+          <GrainOverlay opacity={0.05} />
+          <h3 className="text-4xl font-semibold tracking-tight">Beyond borders.</h3>
+          <p className="mt-2 text-fg-muted">Grain 0.05 + свечение beam снизу</p>
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-medium">Colors</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {colors.map((c) => (
             <div key={c.name} className="flex items-center gap-3">
@@ -121,7 +133,7 @@ export function DevPage() {
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="pl-2 text-xl font-medium">Typography</h2>
+        <h2 className="text-xl font-medium">Typography</h2>
         <p className="text-5xl font-semibold tracking-tight">Beyond borders. Съешь ещё.</p>
         <p className="text-fg-muted">
           Secondary text — descriptions and captions. Вторичный текст для описаний.

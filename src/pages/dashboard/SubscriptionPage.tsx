@@ -11,7 +11,7 @@ import { formatDateFull, formatMoney } from '../../lib/format'
 import { useDashboard } from './DashboardContext'
 import { PageHeader } from './PageHeader'
 
-const glow = '[text-shadow:0_0_24px_rgb(255_255_255/0.3)]'
+const glow = 'glow-num'
 
 /**
  * Фейковый QR: детерминированная матрица из токена + finder-паттерны по
@@ -61,8 +61,16 @@ function FakeQR({ token }: { token: string }) {
 function TopUpDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { topUp } = useDashboard()
   const toast = useToast()
-  const [amount, setAmount] = useState(10)
+  const [preset, setPreset] = useState(10)
+  const [custom, setCustom] = useState('')
   const reduced = useReducedMotion()
+
+  const amount = custom === '' ? preset : Number(custom)
+  const submit = () => {
+    topUp(amount)
+    toast(`Balance topped up by $${amount}`)
+    onClose()
+  }
 
   return (
     <AnimatePresence>
@@ -86,18 +94,21 @@ function TopUpDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="pl-2 text-lg font-semibold tracking-tight">Top up balance</h2>
-            <p className="mt-2 pl-2 text-sm leading-relaxed text-fg-muted">
+            <h2 className="text-lg font-semibold tracking-tight">Top up balance</h2>
+            <p className="mt-1 text-sm leading-relaxed text-fg-muted">
               Demo project — no real payments. The amount is credited instantly.
             </p>
-            <div className="mt-5 flex gap-2 pl-2">
+            <div className="mt-3 flex gap-2">
               {[5, 10, 25].map((v) => (
                 <button
                   key={v}
                   type="button"
-                  onClick={() => setAmount(v)}
+                  onClick={() => {
+                    setPreset(v)
+                    setCustom('')
+                  }}
                   className={`cursor-pointer rounded-xl border px-5 py-2.5 font-mono text-sm transition-colors ${
-                    amount === v
+                    custom === '' && preset === v
                       ? 'border-white/25 bg-white/12 text-fg'
                       : 'border-white/8 text-fg-muted hover:text-fg'
                   }`}
@@ -105,19 +116,37 @@ function TopUpDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
                   ${v}
                 </button>
               ))}
+              <div className="relative min-w-0 flex-1">
+                {custom !== '' && (
+                  <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center font-mono text-sm text-fg">
+                    $
+                  </span>
+                )}
+                <input
+                  value={custom}
+                  onChange={(e) =>
+                    setCustom(e.target.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 3))
+                  }
+                  onKeyDown={(e) => e.key === 'Enter' && submit()}
+                  inputMode="numeric"
+                  placeholder="Custom"
+                  aria-label="Custom amount in dollars"
+                  className={`w-full rounded-xl border py-2.5 pr-4 font-mono text-sm text-fg transition-colors placeholder:text-fg-muted focus:outline-none ${
+                    custom !== '' ? 'border-white/25 bg-white/12 pl-7' : 'border-white/8 pl-4 focus:border-white/25'
+                  }`}
+                />
+              </div>
             </div>
-            <div className="mt-6 flex justify-end gap-2">
-              <Button variant="ghost" onClick={onClose}>
-                Cancel
+            <div className="w-full mt-8 flex justify-between gap-2">
+              <Button className="px-8" onClick={submit}>
+                Add ${amount}
               </Button>
               <Button
-                onClick={() => {
-                  topUp(amount)
-                  toast(`Balance topped up by $${amount}`)
-                  onClose()
-                }}
+                className="px-4"
+                variant="ghost"
+                onClick={onClose}
               >
-                Add ${amount}
+                Cancel
               </Button>
             </div>
           </motion.div>
@@ -128,7 +157,7 @@ function TopUpDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
 }
 
 export function SubscriptionPage() {
-  const { balance, daysLeft, expiresAt, transactions, subToken, resetSubToken } = useDashboard()
+  const { balance, expiresAt, transactions, subToken, resetSubToken } = useDashboard()
   const toast = useToast()
   const [topUpOpen, setTopUpOpen] = useState(false)
   const [resetOpen, setResetOpen] = useState(false)
@@ -150,18 +179,23 @@ export function SubscriptionPage() {
           {/* Баланс и тариф */}
           <Reveal delay={0.05}>
             <GlassCard className="p-6 lg:p-7">
-              <div className="flex flex-wrap items-end justify-between gap-5 pl-2">
+              <div className="flex flex-wrap items-end justify-between gap-5">
                 <div>
                   <div className="text-xs text-fg-muted">Balance</div>
                   <div className={`mt-2 font-mono text-4xl tracking-tight ${glow}`}>
                     {formatMoney(balance)}
                   </div>
                   <div className="mt-2 text-sm text-fg-muted">
-                    {formatMoney(plan.dailyRate)} per day · lasts ≈ {daysLeft} days, until{' '}
-                    <span className="font-mono text-fg">{formatDateFull(expiresAt)}</span>
+                    {formatMoney(plan.dailyRate)} per day · until{' '}
+                    <span className="font-mono text-fg-muted">{formatDateFull(expiresAt)}</span>
                   </div>
                 </div>
-                <Button onClick={() => setTopUpOpen(true)}>Top up</Button>
+                <Button
+                  className="px-8"
+                  onClick={() => setTopUpOpen(true)}
+                >
+                  Top up
+                </Button>
               </div>
             </GlassCard>
           </Reveal>
@@ -169,12 +203,12 @@ export function SubscriptionPage() {
           {/* История транзакций */}
           <Reveal delay={0.1}>
             <GlassCard className="p-6 lg:p-7">
-              <h2 className="pl-2 text-sm font-medium">Billing history</h2>
+              <h2 className="text-sm font-medium">Billing history</h2>
               <ul className="mt-3">
                 {transactions.slice(0, 10).map((tx) => (
                   <li
                     key={tx.id}
-                    className="flex items-baseline gap-4 border-b border-white/5 py-2.5 pl-2 text-sm last:border-none"
+                    className="flex items-baseline gap-4 border-b border-white/5 py-2.5 text-sm last:border-none"
                   >
                     <span className="w-16 shrink-0 font-mono text-xs text-fg-muted">
                       {formatDateFull(tx.date).replace(', 2026', '')}
@@ -193,9 +227,9 @@ export function SubscriptionPage() {
 
         {/* Ссылка-подписка + QR */}
         <Reveal delay={0.15}>
-          <GlassCard className="flex h-full flex-col p-6 lg:p-7">
-            <h2 className="pl-2 text-sm font-medium">Subscription link</h2>
-            <p className="mt-1 pl-2 text-xs leading-relaxed text-fg-muted">
+          <GlassCard className="flex flex-col pb-2 lg:pb-3 p-6 lg:p-7">
+            <h2 className="text-sm font-medium">Subscription link</h2>
+            <p className="mt-1 text-xs leading-relaxed text-fg-muted">
               Paste it into any client — or scan the QR.
             </p>
             <div className="mt-4 flex items-center justify-center rounded-2xl bg-surface-2 py-6">

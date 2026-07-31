@@ -53,19 +53,20 @@ export function ConfirmDialog({
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="pl-2 text-lg font-semibold tracking-tight">{title}</h2>
-            <p className="mt-2 pl-2 text-sm leading-relaxed text-fg-muted">{description}</p>
-            <div className="mt-6 flex justify-end gap-2">
-              <Button variant="ghost" onClick={onClose}>
-                Cancel
-              </Button>
+            <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
+            <p className="mt-2 text-sm leading-relaxed text-fg-muted">{description}</p>
+            <div className="mt-8 flex w-full justify-between gap-2">
               <Button
+                className="px-8"
                 onClick={() => {
                   onConfirm()
                   onClose()
                 }}
               >
                 {confirmLabel}
+              </Button>
+              <Button className="px-4" variant="ghost" onClick={onClose}>
+                Cancel
               </Button>
             </div>
           </motion.div>

@@ -3,6 +3,7 @@ import { motion, useReducedMotion, type Variants } from 'motion/react'
 import { useNavigate } from 'react-router'
 import { Button } from '../../components/Button'
 import { GrainOverlay } from '../../components/GrainOverlay'
+import { scrollToSection } from '../../lib/scroll'
 
 // WebGL-фон — ленивым чанком, чтобы не тормозить первый рендер
 const Strands = lazy(() => import('../../components/backgrounds/Strands'))
@@ -92,13 +93,7 @@ export function Hero() {
             <Button size="lg" onClick={() => navigate('/login')}>
               Get PrismVPN
             </Button>
-            <Button
-              size="lg"
-              variant="secondary"
-              onClick={() =>
-                document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
-              }
-            >
+            <Button size="lg" variant="secondary" onClick={() => scrollToSection('pricing')}>
               View pricing
             </Button>
           </motion.div>

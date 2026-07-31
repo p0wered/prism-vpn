@@ -10,12 +10,13 @@ import {
   MonitorSmartphone,
   PanelLeftClose,
   PanelLeftOpen,
-  Pyramid,
   Rocket,
   Settings,
   X,
 } from 'lucide-react'
 import { ToastProvider } from '../../components/Toast'
+import { Wordmark } from '../../components/Wordmark'
+import { signOut } from '../../lib/session'
 import { DashboardProvider, useDashboard } from './DashboardContext'
 
 const navItems = [
@@ -75,24 +76,16 @@ function UserChip({ collapsed }: { collapsed?: boolean }) {
       <button
         type="button"
         title="Log out"
-        onClick={() => navigate('/')}
+        onClick={() => {
+          signOut()
+          navigate('/')
+        }}
         className="cursor-pointer rounded-lg p-2 text-fg-muted transition-colors hover:text-fg"
       >
         <LogOut size={16} strokeWidth={1.75} aria-hidden />
         <span className="sr-only">Log out</span>
       </button>
     </div>
-  )
-}
-
-function Wordmark() {
-  return (
-    <NavLink to="/" className="flex items-center gap-2.5 text-fg">
-      <Pyramid size={20} strokeWidth={1.75} aria-hidden />
-      <span className="text-[15px] font-semibold tracking-tight">
-        Prism<span className="text-fg-muted">VPN</span>
-      </span>
-    </NavLink>
   )
 }
 
@@ -184,8 +177,9 @@ function DashboardShell() {
         )}
       </AnimatePresence>
 
-      <main className="min-w-0 flex-1 px-5 pt-20 pb-10 lg:px-10 lg:pt-10">
-        <div className="mx-auto max-w-5xl">
+      <main className="relative min-w-0 flex-1 px-5 pt-20 pb-10 lg:px-10 lg:pt-10">
+        <div aria-hidden className="page-glow" />
+        <div className="relative mx-auto max-w-5xl">
           <Outlet />
         </div>
       </main>

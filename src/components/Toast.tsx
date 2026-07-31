@@ -35,7 +35,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={reduced ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.98 }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="flex items-center gap-2.5 rounded-full border border-white/10 bg-surface-2/90 py-2.5 pr-5 pl-4 text-sm text-fg shadow-[0_8px_32px] shadow-black/60 backdrop-blur-xl"
+              className="flex items-center gap-2.5 rounded-full border border-white/10
+              bg-white/8 py-2.5 pr-5 pl-4 text-sm text-fg shadow-[0_8px_32px]
+              shadow-black/60 backdrop-blur-xl"
             >
               <Check size={15} strokeWidth={2.5} className="text-fg-muted" aria-hidden />
               {toast.message}

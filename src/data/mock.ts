@@ -109,7 +109,8 @@ export const trafficDays: TrafficDay[] = (() => {
 export type Server = {
   id: string
   country: string
-  flag: string
+  code: string // ISO 3166-1 alpha-2, нижний регистр — ключ флага в <Flag />
+
   city: string
   ping: number // ms, «оценка по геолокации» — панель не претендует на измерение
   load: number // 0–100 %
@@ -117,20 +118,20 @@ export type Server = {
 }
 
 export const servers: Server[] = [
-  { id: 'fra-1', country: 'Germany', flag: '🇩🇪', city: 'Frankfurt', ping: 23, load: 42, type: 'standard' },
-  { id: 'fra-g1', country: 'Germany', flag: '🇩🇪', city: 'Frankfurt', ping: 26, load: 61, type: 'gaming' },
-  { id: 'ams-1', country: 'Netherlands', flag: '🇳🇱', city: 'Amsterdam', ping: 31, load: 37, type: 'standard' },
-  { id: 'ams-g1', country: 'Netherlands', flag: '🇳🇱', city: 'Amsterdam', ping: 34, load: 44, type: 'gaming' },
-  { id: 'hel-1', country: 'Finland', flag: '🇫🇮', city: 'Helsinki', ping: 38, load: 21, type: 'standard' },
-  { id: 'sto-1', country: 'Sweden', flag: '🇸🇪', city: 'Stockholm', ping: 44, load: 55, type: 'standard' },
-  { id: 'waw-g1', country: 'Poland', flag: '🇵🇱', city: 'Warsaw', ping: 48, load: 33, type: 'gaming' },
-  { id: 'lon-1', country: 'United Kingdom', flag: '🇬🇧', city: 'London', ping: 52, load: 47, type: 'standard' },
-  { id: 'par-1', country: 'France', flag: '🇫🇷', city: 'Paris', ping: 57, load: 39, type: 'standard' },
-  { id: 'ist-1', country: 'Türkiye', flag: '🇹🇷', city: 'Istanbul', ping: 61, load: 78, type: 'standard' },
-  { id: 'nyc-1', country: 'United States', flag: '🇺🇸', city: 'New York', ping: 118, load: 58, type: 'standard' },
-  { id: 'lax-1', country: 'United States', flag: '🇺🇸', city: 'Los Angeles', ping: 162, load: 41, type: 'standard' },
-  { id: 'tyo-g1', country: 'Japan', flag: '🇯🇵', city: 'Tokyo', ping: 191, load: 36, type: 'gaming' },
-  { id: 'sin-1', country: 'Singapore', flag: '🇸🇬', city: 'Singapore', ping: 205, load: 63, type: 'standard' },
+  { id: 'fra-1', country: 'Germany', code: 'de', city: 'Frankfurt', ping: 23, load: 42, type: 'standard' },
+  { id: 'fra-g1', country: 'Germany', code: 'de', city: 'Frankfurt', ping: 26, load: 61, type: 'gaming' },
+  { id: 'ams-1', country: 'Netherlands', code: 'nl', city: 'Amsterdam', ping: 31, load: 37, type: 'standard' },
+  { id: 'ams-g1', country: 'Netherlands', code: 'nl', city: 'Amsterdam', ping: 34, load: 44, type: 'gaming' },
+  { id: 'hel-1', country: 'Finland', code: 'fi', city: 'Helsinki', ping: 38, load: 21, type: 'standard' },
+  { id: 'sto-1', country: 'Sweden', code: 'se', city: 'Stockholm', ping: 44, load: 55, type: 'standard' },
+  { id: 'waw-g1', country: 'Poland', code: 'pl', city: 'Warsaw', ping: 48, load: 33, type: 'gaming' },
+  { id: 'lon-1', country: 'United Kingdom', code: 'gb', city: 'London', ping: 52, load: 47, type: 'standard' },
+  { id: 'par-1', country: 'France', code: 'fr', city: 'Paris', ping: 57, load: 39, type: 'standard' },
+  { id: 'ist-1', country: 'Türkiye', code: 'tr', city: 'Istanbul', ping: 61, load: 78, type: 'standard' },
+  { id: 'nyc-1', country: 'United States', code: 'us', city: 'New York', ping: 118, load: 58, type: 'standard' },
+  { id: 'lax-1', country: 'United States', code: 'us', city: 'Los Angeles', ping: 162, load: 41, type: 'standard' },
+  { id: 'tyo-g1', country: 'Japan', code: 'jp', city: 'Tokyo', ping: 191, load: 36, type: 'gaming' },
+  { id: 'sin-1', country: 'Singapore', code: 'sg', city: 'Singapore', ping: 205, load: 63, type: 'standard' },
 ]
 
 /** Топ-N ближайших («recommended, nearest to you») */

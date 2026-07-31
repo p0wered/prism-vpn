@@ -4,6 +4,7 @@ import { Copy, QrCode } from 'lucide-react'
 import iphoneMock from '../../assets/iphone-17-mock.png'
 import { Button } from '../../components/Button'
 import { GlassCard } from '../../components/GlassCard'
+import { PillTabs } from '../../components/PillTabs'
 import { Reveal } from '../../components/Reveal'
 import { useToast } from '../../components/Toast'
 import { subLink } from '../../data/mock'
@@ -59,43 +60,46 @@ export function SetupPage() {
 
       {/* Hero своего приложения — рекомендуемый путь подключения */}
       <Reveal delay={0.05}>
-        <GlassCard halo className="overflow-hidden">
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-stretch">
-            <div className="flex-1 p-7 pb-0 sm:py-9 sm:pl-9">
-              <h2 className="pl-2 text-xl font-semibold tracking-tight lg:text-2xl">
-                PrismVPN app
-              </h2>
-              <p className="mt-2 max-w-sm pl-2 text-sm leading-relaxed text-fg-muted">
-                The fastest way in: install the app, tap once — your subscription, servers and
-                settings import themselves. iOS and Android.
-              </p>
-              <div className="mt-6 flex flex-wrap items-center gap-3 pl-2">
+        <GlassCard halo className="flex min-h-80 overflow-hidden">
+          <div className="relative flex w-full flex-col gap-6 sm:flex-row sm:items-stretch">
+            <div className="flex w-full flex-1 flex-col justify-between p-7 sm:py-9 sm:pl-9">
+              <div>
+                <h2 className="text-xl font-semibold tracking-tight lg:text-2xl">
+                  PrismVPN app
+                </h2>
+                <p className="mt-2 max-w-sm text-sm leading-relaxed text-fg-muted">
+                  The fastest way in: install the app, tap once — your subscription, servers and
+                  settings import themselves. iOS and Android.
+                </p>
+              </div>
+
+              <div className="mt-6 flex flex-wrap items-center gap-3">
                 <Button
                   onClick={() => {
                     copyLink()
                   }}
                 >
-                  Add subscription in one tap
+                  Add subscription
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => toast('Demo project — the app is not published')}
+                  onClick={() => toast('Error - link is not found')}
                 >
                   App Store
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => toast('Demo project — the app is not published')}
+                  onClick={() => toast('Error - link is not found')}
                 >
                   Google Play
                 </Button>
               </div>
             </div>
-            <div className="flex justify-center sm:block">
+            <div className="absolute right-12 top-8 hidden md:block">
               <img
                 src={iphoneMock}
                 alt="PrismVPN app on iPhone"
-                className="pointer-events-none mt-2 max-h-72 object-contain object-bottom select-none sm:mt-8 sm:mr-10 sm:max-h-80"
+                className="pointer-events-none max-h-72 object-contain object-bottom select-none sm:max-h-110"
               />
             </div>
           </div>
@@ -105,30 +109,18 @@ export function SetupPage() {
       {/* Инструкция по платформам */}
       <Reveal delay={0.1}>
         <GlassCard className="p-5 lg:p-7">
-          <div
-            className="-mx-1 flex gap-1 overflow-x-auto rounded-full bg-surface-2 p-1 sm:mx-0 sm:w-fit"
-            role="tablist"
-            aria-label="Platform"
-          >
-            {platforms.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                role="tab"
-                aria-selected={platform === p.id}
-                onClick={() => setPlatform(p.id)}
-                className={`cursor-pointer rounded-full px-4 py-1.5 text-sm whitespace-nowrap transition-colors ${
-                  platform === p.id ? 'bg-white/12 text-fg' : 'text-fg-muted hover:text-fg'
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
+          <PillTabs
+            value={platform}
+            onChange={setPlatform}
+            options={platforms}
+            ariaLabel="Platform"
+            className="-mx-1 gap-1 overflow-x-auto sm:mx-0 sm:w-fit"
+            tabClassName="px-4 py-1.5 text-sm whitespace-nowrap"
+          />
 
-          <ol className="mt-6 flex flex-col gap-5 pl-2">
+          <ol className="mt-6 flex flex-col gap-8">
             <li className="flex gap-4">
-              <span className="font-mono text-sm text-fg-muted">01</span>
+              <span className="font-mono text-sm text-fg-muted mt-0.5">01</span>
               <div className="text-sm leading-relaxed">
                 Install <span className="font-medium">{recommended}</span>
                 {isMobile && <span className="text-fg-muted"> — our own client, recommended</span>}
@@ -139,7 +131,7 @@ export function SetupPage() {
               </div>
             </li>
             <li className="flex gap-4">
-              <span className="font-mono text-sm text-fg-muted">02</span>
+              <span className="font-mono text-sm text-fg-muted mt-0.5">02</span>
               <div className="text-sm leading-relaxed">
                 Copy your subscription link
                 <span className="text-fg-muted">
@@ -150,13 +142,13 @@ export function SetupPage() {
                   </Link>
                   .
                 </span>
-                <div className="mt-3 flex flex-wrap gap-2.5">
-                  <Button variant="secondary" className="h-9 px-4 text-xs" onClick={copyLink}>
+                <div className="mt-3 flex flex-wrap gap-4">
+                  <Button variant="ghost" className="h-6! px-0! text-xs" onClick={copyLink}>
                     <Copy size={13} strokeWidth={1.75} className="mr-2" aria-hidden />
                     Copy link
                   </Button>
                   <Link to="/dashboard/subscription">
-                    <Button variant="ghost" className="h-9 px-3 text-xs">
+                    <Button variant="ghost" className="h-6! px-0! text-xs">
                       <QrCode size={13} strokeWidth={1.75} className="mr-2" aria-hidden />
                       Show QR
                     </Button>
@@ -165,7 +157,7 @@ export function SetupPage() {
               </div>
             </li>
             <li className="flex gap-4">
-              <span className="font-mono text-sm text-fg-muted">03</span>
+              <span className="font-mono text-sm text-fg-muted mt-0.5">03</span>
               <div className="text-sm leading-relaxed">
                 Import the link in the app
                 <span className="block text-fg-muted">
@@ -184,7 +176,7 @@ export function SetupPage() {
           <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {thirdParty.map((c) => (
               <GlassCard key={c.name} className="p-5">
-                <div className="pl-2">
+                <div>
                   <div className="text-sm font-medium">{c.name}</div>
                   <div className="mt-1 font-mono text-xs text-fg-muted">{c.platforms}</div>
                 </div>

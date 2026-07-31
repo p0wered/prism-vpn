@@ -10,6 +10,7 @@ import {
   type Device,
   type Transaction,
 } from '../../data/mock'
+import { getSession, renameSession } from '../../lib/session'
 
 /**
  * Общий мутируемый стейт dashboard: профиль, баланс, устройства, транзакции,
@@ -36,7 +37,13 @@ type DashboardState = {
 const DashboardContext = createContext<DashboardState | null>(null)
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
-  const [nickname, setNickname] = useState(initialUser.nickname)
+  // Ник — единственное поле, общее с мок-сессией: его показывает хедер
+  // лендинга, который живёт вне провайдера
+  const [nickname, setNicknameState] = useState(getSession()?.nickname ?? initialUser.nickname)
+  const setNickname = (name: string) => {
+    setNicknameState(name)
+    renameSession(name)
+  }
   const [balance, setBalance] = useState(initialUser.balance)
   const [devices, setDevices] = useState(initialDevices)
   const [transactions, setTransactions] = useState(initialTransactions)

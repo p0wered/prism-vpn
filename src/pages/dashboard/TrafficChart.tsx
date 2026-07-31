@@ -83,9 +83,11 @@ export function TrafficChart({ days }: { days: TrafficDay[] }) {
           className="block touch-none select-none"
         >
           <defs>
+            {/* Заливка «цвет живёт в свете»: белое ядро у линии → ледяной спад */}
             <linearGradient id="traffic-fill" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="white" stopOpacity="0.14" />
-              <stop offset="100%" stopColor="white" stopOpacity="0" />
+              <stop offset="45%" stopColor="var(--color-ice)" stopOpacity="0.17" />
+              <stop offset="100%" stopColor="var(--color-ice)" stopOpacity="0" />
             </linearGradient>
           </defs>
 
@@ -120,7 +122,7 @@ export function TrafficChart({ days }: { days: TrafficDay[] }) {
             stroke="white"
             strokeOpacity="0.9"
             strokeWidth="1.5"
-            style={{ filter: 'drop-shadow(0 0 6px rgb(255 255 255 / 0.35))' }}
+            style={{ filter: 'drop-shadow(0 0 6px rgb(180 210 255 / 0.75))' }}
           />
 
           {days.map((d, i) =>
@@ -155,7 +157,7 @@ export function TrafficChart({ days }: { days: TrafficDay[] }) {
                 cy={py(days[hover].gb)}
                 r="3.5"
                 fill="white"
-                style={{ filter: 'drop-shadow(0 0 6px rgb(255 255 255 / 0.6))' }}
+                style={{ filter: 'drop-shadow(0 0 6px rgb(180 210 255 / 0.7))' }}
               />
             </g>
           )}
