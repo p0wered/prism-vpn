@@ -134,6 +134,19 @@ export const servers: Server[] = [
   { id: 'sin-1', country: 'Singapore', code: 'sg', city: 'Singapore', ping: 205, load: 63, type: 'standard' },
 ]
 
+/**
+ * Фейковый выходной IP сервера — показывается в приложении при подключении.
+ * Детерминирован по id: один и тот же сервер всегда даёт один и тот же адрес,
+ * иначе скриншоты экрана приложения не повторяются.
+ */
+export function exitIp(server: Server) {
+  let h = 0
+  for (const ch of server.id) h = (h * 31 + ch.charCodeAt(0)) | 0
+  const rand = mulberry32(Math.abs(h))
+  // 185.x.x.x — диапазон RIPE, выглядит правдоподобно для европейского хостинга
+  return `185.${Math.floor(rand() * 256)}.${Math.floor(rand() * 256)}.${Math.floor(rand() * 254) + 1}`
+}
+
 /** Топ-N ближайших («recommended, nearest to you») */
 export const recommendedServers = (n: number) =>
   [...servers].sort((a, b) => a.ping - b.ping).slice(0, n)

@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Скриншоты мока приложения (scripts/shoot-app.mjs) — генерируются локально
+shots
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

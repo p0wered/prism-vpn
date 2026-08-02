@@ -256,7 +256,6 @@ function DashboardShell() {
       </AnimatePresence>
 
       <main className="relative min-w-0 flex-1 px-5 pt-20 pb-10 lg:px-10 lg:pt-10">
-        <div aria-hidden className="page-glow" />
         <div className="relative mx-auto max-w-5xl">
           <Outlet />
         </div>

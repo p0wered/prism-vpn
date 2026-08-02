@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "shoot": "node scripts/shoot-app.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.9",

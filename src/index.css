@@ -95,19 +95,44 @@
   }
 
   /*
-   * Световое полотно страницы dashboard: очень слабое свечение сверху за
-   * шапкой — beam в глубине, ice у ядра. Единственное место, где beam
-   * появляется в dashboard. Радиальный спад в прозрачность со всех сторон,
-   * кроме верхней кромки вьюпорта — «правила кромок» не нарушает.
+   * Скрытая полоса прокрутки — для списков в моке мобильного приложения:
+   * на скриншоте «нативного» экрана браузерный скроллбар сразу выдаёт вебню.
    */
-  .page-glow {
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /*
+   * Матовый диск кнопки подключения (см. PROJECT.md → «Мок мобильного
+   * приложения»). Рамка «свет сверху» — тем же приёмом mask-composite, что
+   * у .glass-card, но по кругу и заметно ярче: диск лежит на световом ядре,
+   * при альфах карточки его кромка на свету просто растворяется.
+   */
+  .connect-disc::before {
+    content: '';
     position: absolute;
-    inset: 0 0 auto 0;
-    height: 24rem;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
     pointer-events: none;
-    background:
-      radial-gradient(38% 70% at 50% -12%, --alpha(var(--color-ice) / 6%), transparent 70%),
-      radial-gradient(62% 105% at 50% -12%, --alpha(var(--color-beam) / 8%), transparent 72%);
+    background: linear-gradient(
+      to bottom,
+      rgb(255 255 255 / 0.24),
+      rgb(255 255 255 / 0.09) 45%,
+      rgb(255 255 255 / 0.04)
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
   }
 
   /*
