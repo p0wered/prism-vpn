@@ -13,6 +13,10 @@ export const router = createBrowserRouter([
   { path: '/', element: <LandingPage /> },
   { path: '/login', element: <LoginPage /> },
   {
+    path: '/app',
+    lazy: async () => ({ Component: (await import('../pages/app/AppPage')).AppPage }),
+  },
+  {
     path: '/dashboard',
     element: <DashboardLayout />,
     children: [
@@ -28,12 +32,6 @@ export const router = createBrowserRouter([
   // (динамические импорты внутри мёртвой ветки вырезаются вместе с чанками)
   ...(import.meta.env.DEV
     ? [
-        // Мок экрана мобильного приложения: существует только ради скриншотов
-        // в рамку iPhone, в проде ему делать нечего
-        {
-          path: '/app',
-          lazy: async () => ({ Component: (await import('../pages/app/AppPage')).AppPage }),
-        },
         {
           path: '/dev',
           lazy: async () => ({ Component: (await import('../pages/dev/DevPage')).DevPage }),
