@@ -1,67 +1,18 @@
+import { useId } from 'react'
 import { BarChart3, Globe, Shield, User } from 'lucide-react'
-import { motion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
 
 export type AppTab = 'home' | 'servers' | 'stats' | 'account'
 
 /**
- * Системная строка iOS. Рисуем сами: без неё скрин читается как веб-страница,
- * а не как приложение. Динамический остров впечён в PNG рамки и стоит по
- * центру (≈143–252 px по ширине экрана), поэтому группы разведены к краям.
- *
- * Время — каноническое 9:41: фиксированное значение делает скриншоты
- * повторяемыми, а реальные часы каждый раз давали бы новый кадр.
+ * Отбивка под динамический остров. Своей системной строки (время, сигнал,
+ * wi-fi, батарея, бейдж VPN) экран больше не рисует, но остров впечён в PNG
+ * рамки и стоит по центру — контент обязан начинаться ниже него, иначе шапка
+ * уезжает под вырез. Высота та же, что была у статус-строки: остальная
+ * вертикальная раскладка экрана от неё отсчитана.
  */
-export function StatusBar({ connected }: { connected: boolean }) {
-  return (
-    <div className="relative z-30 flex h-[54px] shrink-0 items-center justify-between px-8 pt-4">
-      <span className="font-sans text-[15px] font-semibold tracking-tight tabular-nums">9:41</span>
-
-      <div className="flex items-center gap-1.5">
-        {/* Бейдж VPN в статус-баре — то, что iOS показывает при активном туннеле */}
-        <motion.span
-          aria-hidden
-          initial={false}
-          animate={{ opacity: connected ? 1 : 0, scale: connected ? 1 : 0.85 }}
-          transition={{ duration: 0.25 }}
-          className="mr-0.5 rounded-[4px] bg-fg px-1 py-px font-sans text-[9px] leading-[1.3] font-bold text-black"
-        >
-          VPN
-        </motion.span>
-
-        {/* Сигнал, wi-fi и батарея — как глифы, векторно: иконки lucide тут
-            выглядят слишком «веб», у iOS другая метрика */}
-        <svg width="17" height="11" viewBox="0 0 17 11" aria-hidden className="fill-fg">
-          <rect x="0" y="7.5" width="3" height="3.5" rx="1" />
-          <rect x="4.7" y="5.2" width="3" height="5.8" rx="1" />
-          <rect x="9.4" y="2.7" width="3" height="8.3" rx="1" />
-          <rect x="14.1" y="0" width="3" height="11" rx="1" />
-        </svg>
-
-        {/* Три дуги: рисуются штрихом, а не заливкой — у заливочных путей
-            верхняя дуга уезжала за viewBox и обрезалась */}
-        <svg
-          width="16"
-          height="12"
-          viewBox="0 0 16 12"
-          aria-hidden
-          fill="none"
-          strokeWidth="1.9"
-          strokeLinecap="round"
-          className="stroke-fg"
-        >
-          <path d="M1.3 4.4a9.4 9.4 0 0 1 13.4 0" />
-          <path d="M4.1 7.5a5.5 5.5 0 0 1 7.8 0" />
-          <path d="M6.9 10.5a1.6 1.6 0 0 1 2.2 0" />
-        </svg>
-
-        <svg width="26" height="12" viewBox="0 0 26 12" aria-hidden>
-          <rect x="0.5" y="0.5" width="21" height="11" rx="3.4" fill="none" stroke="currentColor" strokeOpacity=".38" className="text-fg" />
-          <rect x="2.2" y="2.2" width="17.6" height="7.6" rx="2" className="fill-fg" />
-          <path d="M23.2 4.2v3.6a2 2 0 0 0 0-3.6Z" className="fill-fg" opacity=".4" />
-        </svg>
-      </div>
-    </div>
-  )
+export function StatusBarSpacer() {
+  return <div aria-hidden className="h-[54px] shrink-0" />
 }
 
 const TABS: { id: AppTab; label: string; icon: typeof Shield; enabled: boolean }[] = [
@@ -72,44 +23,86 @@ const TABS: { id: AppTab; label: string; icon: typeof Shield; enabled: boolean }
 ]
 
 /**
- * Таб-бар. Живые только Home и Servers — остальные вкладки существуют ради
- * достоверности кадра и намеренно не кликаются (disabled, не просто «мёртвые»:
- * иначе с клавиатуры на них можно уйти в никуда).
+ * Таб-бар — плавающая стеклянная пилюля: полосы во всю ширину нет, контент
+ * уезжает под неё.
+ *
+ * Механика подложки взята у PillTabs (layoutId + spring 450/38), чтобы
+ * движение совпадало с остальными переключателями проекта, но сам компонент
+ * не переиспользован: у него нет disabled-опций (Stats и Account обязаны
+ * оставаться некликабельными), метки стоят в строку, а контейнер жёстко залит
+ * bg-surface-2 — в стеклянной панели его пришлось бы перебивать конфликтующей
+ * утилитой того же веса.
+ *
+ * Живые вкладки — только Home и Servers. Остальные именно disabled, а не
+ * «мёртвые» на вид: иначе с клавиатуры на них можно уйти в никуда.
  */
 export function TabBar({ value, onChange }: { value: AppTab; onChange: (t: AppTab) => void }) {
+  const layoutId = useId()
+  const reduced = useReducedMotion()
+
   return (
-    <div className="absolute inset-x-0 bottom-0 z-30 h-[84px] border-t border-white/8 bg-black/55 backdrop-blur-2xl">
-      <div className="flex h-[60px] items-center justify-around px-2">
+    <div className="absolute inset-x-0 bottom-0 z-30 flex flex-col items-stretch">
+      {/*
+        Подложка под пилюлей. Сплошная полоса раньше перекрывала список сама;
+        плавающая пилюля этого не делает, и в состоянии «выглядывает» шторка
+        уходит ниже экрана — строки торчали из-под пилюли, срезанные нижним
+        краем. Гасим градиентом, а не панелью: у панели есть верхняя кромка,
+        и она читалась бы линией (PROJECT.md → «Правило кромок»).
+      */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[150px] bg-gradient-to-t from-black from-45% via-black/85 to-transparent"
+      />
+
+      <div
+        role="tablist"
+        aria-label="Sections"
+        className="relative mx-4 flex gap-0.5 rounded-full border border-white/10 bg-surface-1/25 p-1.5 backdrop-blur-2xl"
+      >
         {TABS.map(({ id, label, icon: Icon, enabled }) => {
           const active = value === id
           return (
             <button
               key={id}
               type="button"
+              role="tab"
+              aria-selected={active}
               disabled={!enabled}
-              aria-current={active ? 'page' : undefined}
               onClick={() => onChange(id)}
-              className={`flex w-16 flex-col items-center gap-1 rounded-xl py-1 transition-colors ${
+              className={`relative flex flex-1 flex-col items-center gap-1 rounded-full py-2 transition-colors ${
                 enabled ? 'cursor-pointer' : 'cursor-default'
               } ${active ? 'text-fg' : enabled ? 'text-fg-muted' : 'text-fg-muted/35'}`}
             >
+              {active && (
+                <motion.span
+                  layoutId={layoutId}
+                  aria-hidden
+                  className="absolute inset-0 bg-white/12"
+                  style={{ borderRadius: 9999 }}
+                  transition={
+                    reduced ? { duration: 0 } : { type: 'spring', stiffness: 450, damping: 38 }
+                  }
+                />
+              )}
               <Icon
-                size={21}
+                size={19}
                 strokeWidth={active ? 2.1 : 1.7}
-                style={
-                  active ? { filter: 'drop-shadow(0 0 7px rgb(255 255 255/.45))' } : undefined
-                }
+                className="relative"
+                style={active ? { filter: 'drop-shadow(0 0 7px rgb(255 255 255/.45))' } : undefined}
               />
-              <span className="text-[10px] leading-none font-medium tracking-tight">{label}</span>
+              <span className="relative text-[10px] leading-none font-medium tracking-tight">
+                {label}
+              </span>
             </button>
           )
         })}
       </div>
 
       {/* Home indicator */}
-      <div className="flex justify-center">
-        <span aria-hidden className="h-[5px] w-[136px] rounded-full bg-fg/85" />
-      </div>
+      <span
+        aria-hidden
+        className="relative mx-auto mt-2.5 mb-2 h-[5px] w-[136px] rounded-full bg-fg/85"
+      />
     </div>
   )
 }

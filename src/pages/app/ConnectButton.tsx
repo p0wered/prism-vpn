@@ -17,6 +17,16 @@ type ConnectButtonProps = {
 const RING_R = 48
 const RING_LEN = 2 * Math.PI * RING_R
 
+/**
+ * Радиус матового диска в CSS-px (кнопка 212 px, диск утоплен на 14) — единица
+ * длины шейдера. Канвас квадратный и заметно шире кнопки: кольцу нитей нужен
+ * запас по вертикали, иначе маска кромок гасит его сверху и снизу сильнее,
+ * чем по бокам, и кольцо получается неравномерным.
+ */
+const DISC_R = (212 - 14 * 2) / 2
+const STAGE_H = 318
+const CANVAS = 402
+
 const LABELS: Record<CorePhase, string> = {
   off: 'Connect',
   connecting: 'Cancel connection',
@@ -43,9 +53,20 @@ export function ConnectButton({ phase, waveKey, onToggle }: ConnectButtonProps) 
   const on = phase === 'on'
 
   return (
-    <div className="relative flex h-[318px] shrink-0 items-center justify-center">
-      {/* Канвас во всю ширину экрана: ореолу и ударной волне нужен разбег */}
-      <ConnectCore phase={phase} waveKey={waveKey} className="absolute inset-0" />
+    <div
+      style={{ height: STAGE_H }}
+      className="relative flex shrink-0 items-center justify-center"
+    >
+      {/* Канвас выходит за пределы сцены по вертикали — ореолу, кольцу нитей
+          и ударной волне нужен разбег. Шапка и блок статуса подняты на z-10,
+          иначе позиционированный канвас перекрыл бы их текст. */}
+      <ConnectCore
+        phase={phase}
+        waveKey={waveKey}
+        unit={DISC_R}
+        style={{ height: CANVAS, marginTop: -(CANVAS - STAGE_H) / 2 }}
+        className="absolute inset-x-0 top-0 z-0"
+      />
 
       <div className="relative size-[212px]">
         {/* Кольцо-диафрагма */}
@@ -69,9 +90,17 @@ export function ConnectButton({ phase, waveKey, onToggle }: ConnectButtonProps) 
           <motion.g
             style={{ transformOrigin: '50px 50px' }}
             animate={reduced ? {} : { rotate: 360 }}
-            transition={{ duration: busy ? 1.1 : 9, ease: 'linear', repeat: Infinity }}
+            transition={{ duration: busy ? 0.7 : 9, ease: 'linear', repeat: Infinity }}
           >
-            <motion.circle
+            {/*
+              Обычный circle, а не motion.circle: strokeDasharray, отданный
+              motion в animate, тот пересчитывает по-своему и дуга рассыпается
+              на пунктир. Поэтому длина и прозрачность едут CSS-переходами —
+              если менять длину мгновенно (как было), на переходе между
+              состояниями видно, как дуга скачком меняет размер, пока
+              прозрачность ещё плавно перетекает.
+            */}
+            <circle
               cx="50"
               cy="50"
               r={RING_R}
@@ -79,18 +108,14 @@ export function ConnectButton({ phase, waveKey, onToggle }: ConnectButtonProps) 
               stroke="var(--color-fg)"
               strokeWidth="1.1"
               strokeLinecap="round"
-              /*
-               * Штрихи — обычным атрибутом, мимо motion: переданный в animate
-               * strokeDasharray motion пересчитывает по-своему и дуга
-               * рассыпается на пунктир. Интерполировать тут нечего — состояния
-               * и так разводятся прозрачностью.
-               */
-              strokeDasharray={
-                busy ? `${RING_LEN * 0.17} ${RING_LEN}` : `${RING_LEN * 0.3} ${RING_LEN}`
-              }
-              animate={{ opacity: busy ? 1 : on ? 0.8 : 0 }}
-              transition={{ duration: 0.4 }}
-              style={{ filter: 'drop-shadow(0 0 4px rgb(255 255 255/.6))' }}
+              style={{
+                strokeDasharray: busy
+                  ? `${RING_LEN * 0.17} ${RING_LEN}`
+                  : `${RING_LEN * 0.3} ${RING_LEN}`,
+                opacity: busy ? 1 : on ? 0.8 : 0,
+                filter: 'drop-shadow(0 0 4px rgb(255 255 255/.6))',
+                transition: reduced ? 'none' : 'stroke-dasharray .45s ease, opacity .45s ease',
+              }}
             />
           </motion.g>
         </svg>

@@ -56,7 +56,7 @@ export function ServerSheet({
       animate={{ y: open ? 0 : PEEK_Y }}
       transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 360, damping: 40 }}
       style={{ height: SHEET_H }}
-      className="absolute inset-x-0 bottom-0 z-20 flex flex-col rounded-t-[28px] border-t border-white/10 bg-surface-1/85 pb-[84px] backdrop-blur-2xl"
+      className="absolute inset-x-0 bottom-0 z-20 flex flex-col rounded-t-card-lg border-t border-white/10 bg-surface-1/25 pb-21 backdrop-blur-2xl"
     >
       {/* Шапка — она же ручка перетаскивания */}
       <div

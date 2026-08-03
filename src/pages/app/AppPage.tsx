@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import { Pyramid } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { GrainOverlay } from '../../components/GrainOverlay'
 import { exitIp } from '../../data/mock'
 import { formatDuration, formatTrafficMB } from '../../lib/format'
 import { ConnectButton } from './ConnectButton'
-import { StatusBar, TabBar, type AppTab } from './PhoneChrome'
+import { StatusBarSpacer, TabBar, type AppTab } from './PhoneChrome'
 import { ServerSheet, type SheetState } from './ServerSheet'
 import { ServersTab } from './ServersTab'
 import { useAppParams, useConnection } from './useConnection'
@@ -64,31 +63,22 @@ export function AppPage() {
         style={{ width: SCREEN_W, height: SCREEN_H }}
         className="relative flex shrink-0 flex-col overflow-hidden bg-bg text-fg select-none"
       >
-        <StatusBar connected={connected} />
+        <StatusBarSpacer />
 
         {tab === 'home' ? (
           <>
-            <header className="flex h-[44px] shrink-0 items-center justify-between px-5">
-              <span className="flex items-center gap-2 text-fg">
-                <Pyramid size={17} strokeWidth={1.9} aria-hidden />
-                <span className="text-[15px] font-semibold tracking-tight">
-                  Prism<span className="text-fg-muted">VPN</span>
-                </span>
-              </span>
-              <span
-                aria-hidden
-                className="grid size-7 place-items-center rounded-full bg-white/10 text-[11px] font-semibold"
-              >
-                A
-              </span>
-            </header>
+            {/* Шапки (логотип + аватар) на этом экране нет: ядро остаётся
+                единственным объектом сверху. Её высота не отдана вверх, а
+                оставлена отбивкой — иначе кнопка уезжает к вырезу и вся
+                композиция сползает от шторки. */}
+            <div aria-hidden className="h-[44px] shrink-0" />
 
             <ConnectButton phase={phase} waveKey={waveKey} onToggle={toggle} />
 
             {/* Блок статуса. Высота фиксирована: иначе кнопка над ним
                 подпрыгивает при смене состояния — на скринах это видно как
                 разное положение центра от кадра к кадру. */}
-            <div className="h-[108px] shrink-0 px-6 text-center">
+            <div className="relative z-10 h-[108px] shrink-0 px-6 text-center">
               <div className="flex items-center justify-center gap-2">
                 <motion.span
                   aria-hidden

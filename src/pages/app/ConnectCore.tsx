@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type CSSProperties } from 'react'
 import { Mesh, Program, Renderer, Triangle } from 'ogl'
 import { hexToRgb } from '../../components/backgrounds/loop'
 import { coreFrag, coreVert } from './coreShader'
@@ -9,11 +9,21 @@ type ConnectCoreProps = {
   phase: CorePhase
   /** Смена значения запускает ударную волну. Обычно — счётчик нажатий. */
   waveKey?: number
+  /**
+   * Радиус матового диска кнопки в CSS-px — единица длины шейдера (r = 1 на
+   * кромке диска). Все радиусы внутри заданы относительно кнопки, поэтому
+   * размер канваса можно менять, не перекалибровывая свет.
+   */
+  unit: number
   className?: string
+  style?: CSSProperties
 }
 
-/** Длительность ударной волны, мс */
-const WAVE_MS = 1100
+/** Длительность ударной волны, мс. Было 1100 — кольцо доползало до края уже
+ *  после того, как отработала кнопка, и читалось отдельным событием, а не
+ *  откликом на нажатие. Профиль волны при этом тот же: в шейдере и радиус, и
+ *  затухание считаются от прогресса 0..1, а не от времени. */
+const WAVE_MS = 850
 
 /**
  * Световое ядро кнопки подключения — единственный WebGL-эффект этой страницы
@@ -25,7 +35,13 @@ const WAVE_MS = 1100
  * при reduced-motion всё равно требуется перерисовка на каждой смене фазы —
  * иначе кнопка визуально перестаёт реагировать на нажатие.
  */
-export function ConnectCore({ phase, waveKey = 0, className = '' }: ConnectCoreProps) {
+export function ConnectCore({
+  phase,
+  waveKey = 0,
+  unit,
+  className = '',
+  style,
+}: ConnectCoreProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const phaseRef = useRef(phase)
   const waveStartRef = useRef(-1)
@@ -58,6 +74,7 @@ export function ConnectCore({ phase, waveKey = 0, className = '' }: ConnectCoreP
 
     const uniforms = {
       uResolution: { value: [1, 1] },
+      uUnit: { value: unit },
       uTime: { value: 0 },
       uOn: { value: phaseRef.current === 'on' ? 1 : 0 },
       uBusy: { value: 0 },
@@ -137,6 +154,7 @@ export function ConnectCore({ phase, waveKey = 0, className = '' }: ConnectCoreP
       gl.getExtension('WEBGL_lose_context')?.loseContext()
       gl.canvas.remove()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- канвас монтируется один раз; unit — константа разметки
   }, [])
 
   useEffect(() => {
@@ -153,6 +171,7 @@ export function ConnectCore({ phase, waveKey = 0, className = '' }: ConnectCoreP
     <div
       ref={containerRef}
       aria-hidden
+      style={style}
       className={`pointer-events-none overflow-hidden ${className}`}
     />
   )
