@@ -25,7 +25,16 @@ const RING_LEN = 2 * Math.PI * RING_R
  */
 const DISC_R = (212 - 14 * 2) / 2
 const STAGE_H = 318
-const CANVAS = 402
+const CANVAS = 520
+/**
+ * Канвас шире экрана: ореол вытянут по горизонтали и обязан уходить за края
+ * кадра. Если канвас упирается в ширину экрана, его собственное гашение кромок
+ * срезает свет прямо в кадре — вокруг кнопки появляется мягкий круг, и никакой
+ * линзы не получается, какой бы ни была форма самого свечения. Вынесенная за
+ * экран кромка гасится уже вне видимой области, а по бокам свет просто уходит
+ * за край экрана, как и должен уходить свет.
+ */
+const CANVAS_OVERHANG = 120
 
 const LABELS: Record<CorePhase, string> = {
   off: 'Connect',
@@ -64,8 +73,13 @@ export function ConnectButton({ phase, waveKey, onToggle }: ConnectButtonProps) 
         phase={phase}
         waveKey={waveKey}
         unit={DISC_R}
-        style={{ height: CANVAS, marginTop: -(CANVAS - STAGE_H) / 2 }}
-        className="absolute inset-x-0 top-0 z-0"
+        style={{
+          height: CANVAS,
+          marginTop: -(CANVAS - STAGE_H) / 2,
+          left: -CANVAS_OVERHANG,
+          right: -CANVAS_OVERHANG,
+        }}
+        className="absolute top-0 z-0"
       />
 
       <div className="relative size-[212px]">

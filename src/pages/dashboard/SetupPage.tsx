@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { Copy, QrCode } from 'lucide-react'
-import iphoneMock from '../../assets/iphone-17-mock.png'
+import connectedApp from '../../assets/connected.png'
 import { Button } from '../../components/Button'
 import { GlassCard } from '../../components/GlassCard'
 import { PillTabs } from '../../components/PillTabs'
@@ -97,9 +97,9 @@ export function SetupPage() {
             </div>
             <div className="absolute right-12 top-8 hidden md:block">
               <img
-                src={iphoneMock}
+                src={connectedApp}
                 alt="PrismVPN app on iPhone"
-                className="pointer-events-none max-h-72 object-contain object-bottom select-none sm:max-h-110"
+                className="pointer-events-none max-h-76 object-contain object-bottom select-none sm:max-h-115"
               />
             </div>
           </div>
@@ -108,7 +108,7 @@ export function SetupPage() {
 
       {/* Инструкция по платформам */}
       <Reveal delay={0.1}>
-        <GlassCard className="p-5 lg:p-7">
+        <GlassCard className="p-5 lg:p-6">
           <PillTabs
             value={platform}
             onChange={setPlatform}
@@ -118,7 +118,7 @@ export function SetupPage() {
             tabClassName="px-4 py-1.5 text-sm whitespace-nowrap"
           />
 
-          <ol className="mt-6 flex flex-col gap-8">
+          <ol className="mt-6 flex flex-col gap-8 pl-1">
             <li className="flex gap-4">
               <span className="font-mono text-sm text-fg-muted mt-0.5">01</span>
               <div className="text-sm leading-relaxed">
