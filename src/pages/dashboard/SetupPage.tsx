@@ -60,8 +60,13 @@ export function SetupPage() {
 
       {/* Hero своего приложения — рекомендуемый путь подключения */}
       <Reveal delay={0.05}>
-        <GlassCard halo className="flex min-h-80 overflow-hidden">
-          <div className="relative flex w-full flex-col gap-6 sm:flex-row sm:items-stretch">
+        <GlassCard halo className="flex min-h-80">
+          {/*
+           * overflow-hidden живёт здесь, а не на GlassCard: макет телефона
+           * должен обрезаться по границе карточки, но halo рисуется наружу
+           * (inset -40px) и на карточке был бы срезан вместе с ним.
+           */}
+          <div className="relative flex w-full flex-col gap-6 overflow-hidden rounded-[inherit] sm:flex-row sm:items-stretch">
             <div className="flex w-full flex-1 flex-col justify-between p-7 sm:py-9 sm:pl-9">
               <div>
                 <h2 className="text-xl font-semibold tracking-tight lg:text-2xl">

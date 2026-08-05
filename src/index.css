@@ -35,6 +35,15 @@
 }
 
 @layer base {
+  :root {
+    /*
+     * Холодно-белый свет ореола, компонентами hsl (альфы подставляются на
+     * месте, поэтому не --color-*). Общий у halo GlassCard и свечения Button —
+     * калибруется здесь, в одном месте.
+     */
+    --halo-color: 224 70% 88%;
+  }
+
   html {
     color-scheme: dark;
     background-color: var(--color-bg);
@@ -95,6 +104,45 @@
   }
 
   /*
+   * Свечение кнопки при hover — тот же свет, что ореол GlassCard
+   * (.glass-card-halo): тот же холодный --halo-color и тот же стек теней с
+   * квадратичным спадом (радиус вдвое → альфа вчетверо), то же plus-lighter
+   * наложение. Разница одна: у карточки свет обрезан conic-маской по углу
+   * курсора, здесь горит весь периметр сразу — без трекинга мыши.
+   *
+   * Живёт на ::after, а не на самой кнопке: у primary есть собственная тень
+   * покоя, а box-shadow один на элемент. Inset-слоёв ореола здесь нет — внутри
+   * кнопки текст, свет должен лежать только снаружи.
+   */
+  .btn-glow {
+    position: relative;
+  }
+
+  .btn-glow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    mix-blend-mode: plus-lighter;
+    opacity: 0;
+    box-shadow:
+      0 0 3px 0 hsl(var(--halo-color) / 35%),
+      0 0 6px 0 hsl(var(--halo-color) / 30%),
+      0 0 15px 0 hsl(var(--halo-color) / 22%),
+      0 0 25px 2px hsl(var(--halo-color) / 15%),
+      0 0 50px 2px hsl(var(--halo-color) / 8%);
+    /* Свет набирается быстрее, чем уходит — как у halo и spotlight карточки */
+    transition: opacity 0.5s ease;
+  }
+
+  .btn-glow:hover::after,
+  .btn-glow:focus-visible::after {
+    opacity: 1;
+    transition-duration: 0.16s;
+  }
+
+  /*
    * Скрытая полоса прокрутки — для списков в моке мобильного приложения:
    * на скриншоте «нативного» экрана браузерный скроллбар сразу выдаёт вебню.
    */
@@ -145,6 +193,9 @@
    */
   .glass-card {
     position: relative;
+    /* Свой контекст наложения: z-index рамки и plus-lighter ореола не должны
+       выходить за пределы карточки и влиять на соседей */
+    isolation: isolate;
     border-radius: var(--radius-card);
     background-color: var(--color-surface-1);
     --spot-x: 50%;
@@ -163,6 +214,9 @@
 
   .glass-card::before {
     padding: 1px;
+    /* Рамка — это кромка стекла: всегда поверх контента. Иначе картинки,
+       залезающие под край (макет телефона в Setup), перекрывают её. */
+    z-index: 1;
     /*
      * Spotlight рамки — «дисперсия на грани»: белое ядро + два смещённых
      * холодных радиала (ледяной слева, холодно-фиолетовый справа), как
@@ -215,17 +269,19 @@
    * Внешний ореол GlassCard (проп halo, по мотивам React Bits BorderGlow):
    * многослойный box-shadow, обрезанный conic-маской по углу курсора
    * (--halo-angle) относительно центра. --halo-opacity растёт у краёв.
-   * Цвет холодно-белый, калибруется через --halo-color (компоненты hsl).
+   * Цвет холодно-белый — общий --halo-color из :root.
    */
   .glass-card {
     --halo-angle: 45deg;
     --halo-opacity: 0;
     --halo-radius: 40px;
-    --halo-color: 224 70% 88%;
   }
 
   .glass-card-halo {
     position: absolute;
+    /* Поверх контента, как и рамка: свет лежит на поверхности стекла, его не
+       должны загораживать картинки, выходящие под кромку карточки */
+    z-index: 2;
     inset: calc(-1 * var(--halo-radius));
     border-radius: inherit;
     pointer-events: none;
