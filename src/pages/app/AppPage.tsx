@@ -105,7 +105,7 @@ export function AppPage() {
                     exit={{ opacity: 0, y: -6 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <div className="glow-num mt-2 font-mono text-[40px] leading-none font-medium tracking-tight tabular-nums">
+                    <div className="mt-2 font-mono text-[40px] leading-none font-medium tracking-tight tabular-nums">
                       {formatDuration(seconds)}
                     </div>
                     <div className="mt-2.5 font-mono text-[11px] text-fg-muted tabular-nums">

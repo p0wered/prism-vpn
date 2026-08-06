@@ -13,15 +13,12 @@ import { useDashboard } from './DashboardContext'
 import { PageHeader } from './PageHeader'
 import { TrafficChart } from './TrafficChart'
 
-/** Ключевые цифры — носители света: градиент белый → ледяной (см. index.css) */
-const glow = 'glow-num'
-
 function StatCard({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
     <GlassCard className="p-5">
       <div>
         <div className="text-xs text-fg-muted">{label}</div>
-        <div className={`mt-2 font-mono text-xl tracking-tight lg:text-2xl ${glow}`}>{value}</div>
+        <div className={`mt-2 font-mono text-xl tracking-tight lg:text-2xl`}>{value}</div>
         <div className="mt-1.5 text-xs text-fg-muted">{sub}</div>
       </div>
     </GlassCard>
@@ -134,7 +131,7 @@ export function OverviewPage() {
                     )}
                   </span>
                   <span className="font-mono text-xs text-fg-muted">{s.load}%</span>
-                  <span className={`w-14 text-right font-mono text-sm ${glow}`}>{s.ping} ms</span>
+                  <span className={`w-14 text-right font-mono text-sm`}>{s.ping} ms</span>
                 </li>
               ))}
             </ul>

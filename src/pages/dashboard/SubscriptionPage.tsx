@@ -11,8 +11,6 @@ import { formatDateFull, formatMoney } from '../../lib/format'
 import { useDashboard } from './DashboardContext'
 import { PageHeader } from './PageHeader'
 
-const glow = 'glow-num'
-
 /**
  * Фейковый QR: детерминированная матрица из токена + finder-паттерны по
  * углам. Реальной кодировкой не является — для мока достаточно силуэта.
@@ -182,7 +180,7 @@ export function SubscriptionPage() {
               <div className="flex flex-wrap items-end justify-between gap-5">
                 <div>
                   <div className="text-xs text-fg-muted">Balance</div>
-                  <div className={`mt-2 font-mono text-4xl tracking-tight ${glow}`}>
+                  <div className={`mt-2 font-mono text-4xl tracking-tight`}>
                     {formatMoney(balance)}
                   </div>
                   <div className="mt-2 text-sm text-fg-muted">
@@ -214,7 +212,7 @@ export function SubscriptionPage() {
                       {formatDateFull(tx.date).replace(', 2026', '')}
                     </span>
                     <span className="flex-1 text-fg-muted">{tx.label}</span>
-                    <span className={`font-mono ${tx.amount > 0 ? `text-fg ${glow}` : 'text-fg-muted'}`}>
+                    <span className={`font-mono ${tx.amount > 0 ? `text-fg` : 'text-fg-muted'}`}>
                       {tx.amount > 0 ? '+' : ''}
                       {formatMoney(tx.amount)}
                     </span>

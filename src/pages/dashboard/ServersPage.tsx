@@ -7,8 +7,6 @@ import { Reveal } from '../../components/Reveal'
 import { servers } from '../../data/mock'
 import { PageHeader } from './PageHeader'
 
-const glow = 'glow-num'
-
 type Filter = 'all' | 'standard' | 'gaming'
 
 const filters: { id: Filter; label: string }[] = [
@@ -89,7 +87,7 @@ export function ServersPage() {
                     </span>
                     <span className="w-9 text-right font-mono text-xs text-fg-muted">{s.load}%</span>
                   </span>
-                  <span className={`w-16 text-right font-mono text-sm ${glow}`}>{s.ping} ms</span>
+                  <span className={`w-16 text-right font-mono text-sm`}>{s.ping} ms</span>
                 </li>
               ))}
             </ul>

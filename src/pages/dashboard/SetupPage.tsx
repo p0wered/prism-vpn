@@ -60,7 +60,7 @@ export function SetupPage() {
 
       {/* Hero своего приложения — рекомендуемый путь подключения */}
       <Reveal delay={0.05}>
-        <GlassCard halo className="flex min-h-80">
+        <GlassCard className="flex min-h-80">
           {/*
            * overflow-hidden живёт здесь, а не на GlassCard: макет телефона
            * должен обрезаться по границе карточки, но halo рисуется наружу

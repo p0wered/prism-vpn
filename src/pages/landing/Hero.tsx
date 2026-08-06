@@ -80,7 +80,7 @@ export function Hero() {
         <div className="mt-auto mb-[12svh]">
           <motion.p
             variants={item}
-            className="max-w-xl text-lg text-balance text-fg [text-shadow:0_1px_16px_rgb(0_0_0/0.7)]"
+            className="max-w-xl text-md md:text-lg text-balance leading-6 text-fg [text-shadow:0_1px_16px_rgb(0_0_0/0.7)]"
           >
             Fast, private VPN that just works — bypass censorship, stay anonymous, game on
             low-latency servers.

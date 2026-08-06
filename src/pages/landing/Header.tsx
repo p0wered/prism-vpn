@@ -6,6 +6,7 @@ import { Button } from '../../components/Button'
 import { GradualBlur } from '../../components/GradualBlur'
 import { Wordmark } from '../../components/Wordmark'
 import { scrollToSection } from '../../lib/scroll'
+import { setScrollLocked } from '../../lib/smoothScroll'
 import { useSession } from '../../lib/session'
 
 const links = [
@@ -46,14 +47,13 @@ export function Header() {
   // Открытое меню: замок на скролл страницы + закрытие по Escape
   useEffect(() => {
     if (!open) return
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    setScrollLocked(true)
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(false)
     }
     window.addEventListener('keydown', onKey)
     return () => {
-      document.body.style.overflow = prev
+      setScrollLocked(false)
       window.removeEventListener('keydown', onKey)
     }
   }, [open])
@@ -73,7 +73,7 @@ export function Header() {
       >
         <GradualBlur />
 
-        <div className="relative mx-auto grid h-16 max-w-6xl grid-cols-[1fr_auto_1fr] items-center px-6">
+        <div className="relative mx-auto grid h-16 max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-6">
           <Wordmark className="justify-self-start" />
 
           <nav className="hidden items-center gap-1 md:flex" aria-label="Landing sections">

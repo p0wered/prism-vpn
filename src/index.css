@@ -90,20 +90,6 @@
   }
 
   /*
-   * Ключевые цифры («$0.75», «12 ms») — носители света: вертикальный градиент
-   * белый → ледяной (как свет Hero, наезжающий на заголовок) + холодное
-   * свечение. drop-shadow вместо text-shadow: с background-clip: text тень
-   * просвечивала бы сквозь прозрачные глифы.
-   */
-  .glow-num {
-    background: linear-gradient(to bottom, var(--color-fg) 35%, var(--color-ice));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    filter: drop-shadow(0 0 14px --alpha(var(--color-ice) / 40%));
-  }
-
-  /*
    * Свечение кнопки при hover — тот же свет, что ореол GlassCard
    * (.glass-card-halo): тот же холодный --halo-color и тот же стек теней с
    * квадратичным спадом (радиус вдвое → альфа вчетверо), то же plus-lighter
