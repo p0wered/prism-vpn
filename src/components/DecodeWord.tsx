@@ -1,16 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import { useMotionValueEvent, useReducedMotion, type MotionValue } from 'motion/react'
+import { useInView, useReducedMotion } from 'motion/react'
 
 /**
- * Слово в заголовке, которое проходит цензуру вместе с секцией: пока трафик
- * заблокирован — оно набрано мусорными глифами в плашках, к моменту прорыва
- * разбирается в нормальное слово (см. PROJECT.md → «Наполнение секций»).
+ * Слово в заголовке, которое проходит цензуру: пока на него не посмотрели —
+ * оно набрано мусорными глифами, при появлении в кадре разбирается в нормальное
+ * слово (см. PROJECT.md → «Наполнение секций»).
  *
  * Механика взята из React Bits DecryptedText (`refs/`), но переписана: оригинал
  * держит React-стейт на каждый символ и перерисовывает все спаны каждые 50 мс
- * всё время жизни компонента. Здесь позиция раскрытия считается прямо из
- * прогресса скролла, а тасовка глифов работает только внутри окна перехода —
- * до и после него интервал остановлен.
+ * всё время жизни компонента. Здесь интервал живёт только на время разбора —
+ * до появления в кадре и после дочитывания он остановлен.
  */
 
 const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&$@*/\\<>'
@@ -20,51 +19,41 @@ const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v)
 
 export function DecodeWord({
   word,
-  progress,
-  from = 0.34,
-  to = 0.74,
+  duration = 900,
   className = '',
 }: {
   word: string
-  progress: MotionValue<number>
-  /** Прогресс секции, на котором слово начинает разбираться */
-  from?: number
-  /** Прогресс, на котором оно уже читается целиком */
-  to?: number
+  /** Сколько длится разбор слова, мс */
+  duration?: number
   className?: string
 }) {
+  const ref = useRef<HTMLSpanElement>(null)
   const reduced = useReducedMotion()
-  const [revealed, setRevealed] = useState(() => (reduced ? word.length : 0))
+  // Слово короткое и стоит в заголовке — ждём, пока оно войдёт в кадр целиком,
+  // иначе разбор успевает пройти где-то у нижней кромки экрана
+  const inView = useInView(ref, { once: true, amount: 0.9 })
+
+  const [revealed, setRevealed] = useState(0)
   // Счётчик кадров тасовки: меняет только нераскрытые глифы
   const [shuffle, setShuffle] = useState(0)
-  const timerRef = useRef<number | null>(null)
-
-  const stopShuffle = () => {
-    if (timerRef.current !== null) {
-      clearInterval(timerRef.current)
-      timerRef.current = null
-    }
-  }
-
-  useMotionValueEvent(progress, 'change', (v) => {
-    if (reduced) return
-    const ratio = clamp01((v - from) / (to - from))
-    const next = Math.round(ratio * word.length)
-    setRevealed((prev) => (prev === next ? prev : next))
-
-    const active = ratio > 0 && ratio < 1
-    if (active && timerRef.current === null) {
-      timerRef.current = window.setInterval(() => setShuffle((n) => n + 1), SHUFFLE_MS)
-    } else if (!active) {
-      stopShuffle()
-    }
-  })
-
-  useEffect(() => stopShuffle, [])
 
   useEffect(() => {
-    if (reduced) setRevealed(word.length)
-  }, [reduced, word])
+    if (reduced) {
+      setRevealed(word.length)
+      return
+    }
+    if (!inView) return
+
+    const start = performance.now()
+    const timer = window.setInterval(() => {
+      const ratio = clamp01((performance.now() - start) / duration)
+      setRevealed(Math.round(ratio * word.length))
+      setShuffle((n) => n + 1)
+      if (ratio >= 1) clearInterval(timer)
+    }, SHUFFLE_MS)
+
+    return () => clearInterval(timer)
+  }, [inView, reduced, word, duration])
 
   // Считается прямо в рендере: он и так происходит только на смену revealed
   // или shuffle, а мемоизация по счётчику тасовки ничего бы не сэкономила
@@ -82,16 +71,12 @@ export function DecodeWord({
      * на одну ровно в момент, когда слово дочитывалось. `visibility: hidden`
      * скринридеры не читают, поэтому доступный текст отдаётся отдельно.
      */
-    <span className={`relative inline-block ${className}`}>
+    <span ref={ref} className={`relative inline-block ${className}`}>
       <span className="invisible">{word}</span>
       <span className="sr-only">{word}</span>
       <span aria-hidden className="absolute inset-0 whitespace-pre">
         {chars.map(({ char }, i) => (
-          <span
-            key={i}
-          >
-            {char}
-          </span>
+          <span key={i}>{char}</span>
         ))}
       </span>
     </span>
